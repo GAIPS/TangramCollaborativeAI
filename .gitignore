@@ -17,3 +17,7 @@ mono_crash.*.json
 #Training Data
 TrainingData/
 Stats.txt
+
+# Temp files
+*.tmp
+*.tmp.*
