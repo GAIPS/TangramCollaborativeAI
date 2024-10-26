@@ -12,13 +12,15 @@ config_version=5
 
 config/name="tangram"
 run/main_scene="res://tangran/Scenes/Main_scene.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
 
 [editor_plugins]
 
