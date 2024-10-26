@@ -211,7 +211,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Debug Button" type="TextureButton" parent="Arena"]
-visible = false
 modulate = Color(0.8, 1, 1, 1)
 offset_left = 977.0
 offset_top = 441.0
@@ -827,7 +826,9 @@ text = "Watch AI play
 "
 icon = ExtResource("14_86dyq")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(573, 327)
+zoom = Vector2(1.67, 1.67)
 
 [connection signal="pressed" from="Arena/ChatBox/Send Button" to="Arena/ChatBox/AI_Chat" method="_on_pressed"]
 [connection signal="pressed" from="Arena/Finish Button" to="." method="_on_finish_button_pressed"]

@@ -280,13 +280,12 @@ func get_game_state2(leftX: float, rightX: float, bottomY: float, topY: float) -
 
 # Scaling is not straightfoward in godot, this work fines for normal windown and fullscreen
 func get_board_screen():
-	#var region = Rect2(497, 57, 380, 360)
 	var pos_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
 	var pos_y = get_node("Arena/ArenaBoard/VOrigin").global_position.y
 	var width = abs(get_node("Arena/ArenaBoard/VUpperRightCorner").global_position.x - pos_x)
 	var height = abs(get_node("Arena/ArenaBoard/VBottomLeftCorner").global_position.y - pos_y)
 	
-	var region = Rect2(pos_x,pos_y,width,height)
+	var region = Rect2(pos_x*1.67,pos_y*1.67,width*1.67,height*1.67)
 	
 	var image = get_viewport().get_texture().get_image().get_region(region)
 
@@ -298,7 +297,7 @@ func get_piece_drawer_screen():
 	var width = abs(get_node("Arena/ArenaPieceDrawer/VUpperRightCorner").global_position.x - pos_x)
 	var height = abs(get_node("Arena/ArenaPieceDrawer/VBottomLeftCorner").global_position.y - pos_y)
 	
-	var region = Rect2(pos_x,pos_y,width,height)
+	var region = Rect2(pos_x*1.67,pos_y*1.67,width*1.67,height*1.67)
 	
 	var image = get_viewport().get_texture().get_image().get_region(region)
 

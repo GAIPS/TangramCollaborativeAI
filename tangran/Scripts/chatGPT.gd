@@ -55,10 +55,7 @@ func add_message(text: String, is_ai: bool, explanation = false):
 
 	# If it's an AI message, align it to the right
 	if is_ai:
-		if explanation:
-			label.add_theme_color_override("font_color", Color(0.2, 0.2, 1.0))
-		else:
-			label.add_theme_color_override("font_color", Color(0.5,1,0.5))
+		label.add_theme_color_override("font_color", Color(1, 1, 1))
 		margin_container.add_theme_constant_override("margin_left", 250)
 		hbox.add_child(margin_container)  # Add the message
 	else:
