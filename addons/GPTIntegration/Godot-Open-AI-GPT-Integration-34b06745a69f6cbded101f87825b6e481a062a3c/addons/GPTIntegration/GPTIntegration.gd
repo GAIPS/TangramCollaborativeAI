@@ -13,7 +13,13 @@ enum modes {
 var api_key = ""
 var max_tokens = 1024
 var temperature = 0.5
-var url = "https://api.openai.com/v1/chat/completions"
+func get_base_url() -> String:
+	var result = JavaScriptBridge.eval("window.location.origin")
+	print("Base URL is " + result )
+	return result
+
+var base_url = get_base_url()
+var url = base_url + "/api/v1/task/completions
 var headers = ["Content-Type: application/json", "Authorization: Bearer " + api_key]
 var engine = "gpt-3.5-turbo"
 var chat_dock

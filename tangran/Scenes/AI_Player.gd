@@ -11,7 +11,13 @@ var messages = []
 var headers =  ["Content-type: application/json", "Authorization: Bearer " + api_key]
 var data
 var request 
-var url = "https://api.openai.com/v1/chat/completions"
+func get_base_url() -> String:
+	var result = JavaScriptBridge.eval("window.location.origin")
+	print("Base URL is " + result )
+	return result
+
+var base_url = get_base_url()
+var url = base_url + "/api/v1/task/completions"
 
 const figures_names = ["Purple","Brown","Cream","Red","Yellow","Green","Blue"]
 const possible_directions = ["right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"]
@@ -86,7 +92,6 @@ func _on_request_completed(_result, _response_code, _headers, body):
 			print("\n\n\n")
 			print(current_play["move"])
 			print("\n\n\n")
-
 			if current_play["move"].begins_with("Square"):
 				var move_data = current_play["move"].split(" ")
 				await playSquare(move_data[1], move_data[2])

@@ -9,7 +9,13 @@ var messages = []
 var headers =  ["Content-type: application/json", "Authorization: Bearer " + api_key]
 var data
 var request 
-var url = "https://api.openai.com/v1/chat/completions"
+func get_base_url() -> String:
+	var result = JavaScriptBridge.eval("window.location.origin")
+	print("Base URL is " + result )
+	return result
+
+var base_url = get_base_url()
+var url = base_url + "/api/v1/task/completions"
 
 var messageLog = []
 var historyLimit = 20
