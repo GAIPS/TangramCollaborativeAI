@@ -1,5 +1,7 @@
 # Tangram Collaboration platform: Build puzzles with an assistant's help
 
+## Demo available at: https://gaips.github.io/TangramCollaborativeAI/
+
 Our main goal on this research project was to develop an easy-to-use online turn-based game where people, aided by our AI assistants, could build tangram patterns for any given objective.
 
 The agents are powered by GPT4o and each perform individual tasks:
