@@ -70,7 +70,7 @@ func setPlayerTurn():
 
 # TODO: ADD INTERACTION TO INTERACTION HISTORY, may not use relative move grammar, and coordinates instead
 func finishPlayerTurn():
-	if movedPiece and current_turn == "Player" and not hasRequest:		
+	if movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
 		current_turn = "AI"
 		thinking_asc = true
 		time_elapsed = 0.0
@@ -79,7 +79,7 @@ func finishPlayerTurn():
 		ai_play() #TODO: ADD HISTORY AND INSTRUCTION AS CONTEXT 
 
 func _undo_play():
-	if movedPiece and current_turn == "Player":
+	if movedPiece and not dragging and current_turn == "Player":
 		get_node(movedPiece).position = originalPos
 		get_node(movedPiece).rotation = originalRot
 		movedPiece = ""
