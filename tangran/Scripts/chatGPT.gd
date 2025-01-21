@@ -106,10 +106,8 @@ func _on_request_completed(_result, _response_code, _headers, body):
 	#TODO: interpret whether response or tool call
 	
 	print(response)
-	var response_message = response.choices[0].message 
-	#print(response_message)
 	
-	var message = response["choices"][0].message.content
+	var message = response.text
 	add_message("AI: " + message, true)
 
 	messageLog = get_node("../../AI_Player").getUpdatedLog()
@@ -139,10 +137,7 @@ func _on_pressed():
 	#messages.append({"role": "system", "content": "Chat history:" + get_full_chat_history()})
 	messages.append({
 		"role": "user",
-		"content": [
-			gameLogic,
-			get_objective_text(),
-			chatPrompt,
+		"content": [			
 			{"type": "text", "text": "Game image:"},
 			{"type": "image_url", "image_url": {
 				"url": "data:image/png;base64," + current_board64
@@ -158,10 +153,9 @@ func _on_pressed():
 	messages.append({"role": "user", "content": "Player Question:" + $"../TextEdit2".text})
 	
 	var body = JSON.stringify({
-		"messages": messages,
-		"temperature": temperature,
-		"max_tokens": max_tokens,
-		"model": model
+		"userMessages": messages,
+		"inputData": { "target" : "chat" },
+		"objective" : get_objective_text()
 	})
 	
 	request.request(url, headers, HTTPClient.METHOD_POST, body)
@@ -176,46 +170,46 @@ func _on_pressed():
 	$"../TextEdit2".text = ""
 
 ### Prompts ###
-var gameLogic = {
-"type": "text", "text":"""Reference Information about the game: 
-You and the human user are playing a tangram game, arranging the pieces to form an objective shape. 
-The pieces are named by their colors: Red, Purple, Yellow, Green, Blue, Cream, and Brown.
-Red and Cream are two large triangles, Yellow and green are two small triangles, Blue is a medium triangle, Purple is a small square, Brown is a tilted parallelogram.
-We consider 0 degrees of rotation the triangles with their hypotenuse facing down, and the square in the square position (so the diamond shape corresponds to 45 degrees of rotation)
-Example logical plays: Matching shapes can allow new larger shapes to appear, uniting two triangles of the same size by their Hypotenuse creates a square of in the location. The Purple Square or a square created of 2 triangles can serve to form many things like heads, bodies, bases of structures. 
-Two triangles can also form a larger triangle when combined.
-"""
-}
-
-var chatPrompt = {
-"type": "text", "text": """You are an AI chatting with a Human Player thats arraging tangram tangram pieces with you and your co-assistents to reach a certain objective. 
-To answer them, you will have access to the message history, an image of the current board, an image of the current piece drawer where the unplaced pieces lie.
-Your task:
-1. Review what you know about the game state.
-2. Consider the players message and reply logically in an approachable and friendly way.
-
-Rules:
-- If you suggest moves or plays, always explicity describe how pieces should be placed in relation to each other.
-- If you suggest either the move to create a large square or to create a large triangle, say it explicity. Ex: "Make a big square by using Cream and Red" or "Make a big triangle, placing Red to clockwise direction of Cream"
-- Each individual piece, if present in a suggested move, should have a explicit rotation (except for the moves that form big squares and big triangles).
-- If you disagree with an idea given by the player on how you should approach the challege, try to find a middle ground.
-- If the game already looks finished to you, you can say it looks done.
-
-Consider the previous messages and keep your message short, at most 1-3 sentences, the objective is a human-like nice short reply.
-Remember you are collaborating so don't order ideias suggest them in a collaborative manner.
-This message may not be the first in the conversation, but u can see the chat history in the previous message.
-Examples:
-- "Hey, well i think we could begin with the tail, using the medium blue triagle for it."
-- "Ok, got it, i'll try to help you achieve that."
-- "Alright I'll try to use the brown piece to create a tail."
-- "I don't think the yellow piece would make a good roof due to it's size, maybe we could use cream for the same objective."
-- "Sounds great, let's begin then!"
-- "I think the game already looks like our objective."
-"""
-}
+#var gameLogic = {
+#"type": "text", "text":"""Reference Information about the game: 
+#You and the human user are playing a tangram game, arranging the pieces to form an objective shape. 
+#The pieces are named by their colors: Red, Purple, Yellow, Green, Blue, Cream, and Brown.
+#Red and Cream are two large triangles, Yellow and green are two small triangles, Blue is a medium triangle, Purple is a small square, Brown is a tilted parallelogram.
+#We consider 0 degrees of rotation the triangles with their hypotenuse facing down, and the square in the square position (so the diamond shape corresponds to 45 degrees of rotation)
+#Example logical plays: Matching shapes can allow new larger shapes to appear, uniting two triangles of the same size by their Hypotenuse creates a square of in the location. The Purple Square or a square created of 2 triangles can serve to form many things like heads, bodies, bases of structures. 
+#Two triangles can also form a larger triangle when combined.
+#"""
+#}
+#
+#var chatPrompt = {
+#"type": "text", "text": """You are an AI chatting with a Human Player thats arraging tangram tangram pieces with you and your co-assistents to reach a certain objective. 
+#To answer them, you will have access to the message history, an image of the current board, an image of the current piece drawer where the unplaced pieces lie.
+#Your task:
+#1. Review what you know about the game state.
+#2. Consider the players message and reply logically in an approachable and friendly way.
+#
+#Rules:
+#- If you suggest moves or plays, always explicity describe how pieces should be placed in relation to each other.
+#- If you suggest either the move to create a large square or to create a large triangle, say it explicity. Ex: "Make a big square by using Cream and Red" or "Make a big triangle, placing Red to clockwise direction of Cream"
+#- Each individual piece, if present in a suggested move, should have a explicit rotation (except for the moves that form big squares and big triangles).
+#- If you disagree with an idea given by the player on how you should approach the challege, try to find a middle ground.
+#- If the game already looks finished to you, you can say it looks done.
+#
+#Consider the previous messages and keep your message short, at most 1-3 sentences, the objective is a human-like nice short reply.
+#Remember you are collaborating so don't order ideias suggest them in a collaborative manner.
+#This message may not be the first in the conversation, but u can see the chat history in the previous message.
+#Examples:
+#- "Hey, well i think we could begin with the tail, using the medium blue triagle for it."
+#- "Ok, got it, i'll try to help you achieve that."
+#- "Alright I'll try to use the brown piece to create a tail."
+#- "I don't think the yellow piece would make a good roof due to it's size, maybe we could use cream for the same objective."
+#- "Sounds great, let's begin then!"
+#- "I think the game already looks like our objective."
+#"""
+#}
 
 func get_objective_text():
-	return {"type": "text", "text": "Your objetive this game is to form the shape of " + $"../../..".game_task + "."}
+	return $"../../..".game_task
 
 func getUpdatedLog():
 	return messageLog
