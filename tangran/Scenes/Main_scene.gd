@@ -280,14 +280,39 @@ func get_game_state2(leftX: float, rightX: float, bottomY: float, topY: float) -
 
 # Scaling is not straightfoward in godot, this work fines for normal windown and fullscreen
 func get_board_screen():
-	var pos_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
-	var pos_y = get_node("Arena/ArenaBoard/VOrigin").global_position.y
-	var width = abs(get_node("Arena/ArenaBoard/VUpperRightCorner").global_position.x - pos_x)
-	var height = abs(get_node("Arena/ArenaBoard/VBottomLeftCorner").global_position.y - pos_y)
+	var pos_x = 880
+	var pos_y = 115
+	var width = 562
+	var height = 540
 	
-	var region = Rect2(pos_x*1.67,pos_y*1.67,width*1.67,height*1.67)
-	
-	var image = get_viewport().get_texture().get_image().get_region(region)
+	var image = get_viewport().get_texture().get_image()
+	var _width = image.get_width()
+	var _height = image.get_height()
+
+	var multH = (_height/1080.0)
+	var multW = (_width/1920.0)
+	print("Width:", _width, " Height:", _height)
+	print("MultH:", multH, " MultW:", multW)
+
+	print(abs(multH-multW)/2)
+	var region
+
+	if multH > multW:
+		region = Rect2(0, _height*(abs(multH-multW)/2), _width, _height - _height*(abs(multH-multW)))
+		image = image.get_region(region)
+	if multW > multH:
+		region = Rect2(_width*(abs(multH-multW)/2), 0, _width - _width*(abs(multH-multW)), _height)
+		image = image.get_region(region)
+
+	_width = image.get_width()
+	_height = image.get_height()
+	multH = (_height/1080.0)
+	multW = (_width/1920.0)
+
+	region = Rect2(pos_x*multW, pos_y*multH, width*multW, height*multH)
+
+	image = image.get_region(region)
+
 
 	return image
 
