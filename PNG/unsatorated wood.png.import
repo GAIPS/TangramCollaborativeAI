@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cp42m3t1najkc"
-path="res://.godot/imported/circle.png-123edc9d0d8b9bc78ab721b9a856902d.ctex"
+uid="uid://choc14bqt6m8b"
+path="res://.godot/imported/unsatorated wood.png-9145297179df1645a40e760bd5c94630.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://PNG/circle.png"
-dest_files=["res://.godot/imported/circle.png-123edc9d0d8b9bc78ab721b9a856902d.ctex"]
+source_file="res://PNG/unsatorated wood.png"
+dest_files=["res://.godot/imported/unsatorated wood.png-9145297179df1645a40e760bd5c94630.ctex"]
 
 [params]
 

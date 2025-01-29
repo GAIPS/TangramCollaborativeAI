@@ -1,41 +1,37 @@
-[gd_scene load_steps=30 format=3 uid="uid://s8dxi34l715s"]
+[gd_scene load_steps=32 format=3 uid="uid://s8dxi34l715s"]
 
 [ext_resource type="Script" path="res://tangran/Scripts/chatGPT.gd" id="1_gb3b3"]
 [ext_resource type="Script" path="res://tangran/Scenes/Main_scene.gd" id="1_k473l"]
 [ext_resource type="Script" path="res://tangran/Scenes/shapes.gd" id="2_54w1k"]
 [ext_resource type="Texture2D" uid="uid://buf2cb6sjf30o" path="res://PNG/4853433.jpg" id="2_h2muw"]
 [ext_resource type="Texture2D" uid="uid://3igoxebo26hb" path="res://PNG/Sem Título-1.png" id="3_pokhh"]
-[ext_resource type="Texture2D" uid="uid://bn18hog1oqma7" path="res://PNG/2208_w032_n002_595b_p15_595-Recuperado.png" id="4_8k80g"]
 [ext_resource type="PackedScene" uid="uid://2upigcih6078" path="res://control.tscn" id="4_fbgl8"]
+[ext_resource type="Texture2D" uid="uid://kco07w0eokmk" path="res://PNG/file (2).png" id="5_5kvke"]
 [ext_resource type="Texture2D" uid="uid://drtf76bexlri1" path="res://PNG/task1.png" id="5_cg2bn"]
-[ext_resource type="Texture2D" uid="uid://dcikqmchv6chw" path="res://PNG/smallRopeBoard.png" id="5_iru1c"]
-[ext_resource type="Texture2D" uid="uid://d2pwvrltgv8lu" path="res://PNG/2208_w032_n002_595b_p15_595.png" id="5_ne6ks"]
+[ext_resource type="Texture2D" uid="uid://bxyp82tijx1lf" path="res://PNG/Grey Chat.png" id="6_3q1he"]
+[ext_resource type="Texture2D" uid="uid://b47fh428hlm8y" path="res://PNG/Antique Button.png" id="7_pduci"]
 [ext_resource type="Script" path="res://tangran/Scenes/StartMenu.gd" id="8_mi8wj"]
 [ext_resource type="Texture2D" uid="uid://bnnpsvr735etn" path="res://PNG/octaButton.png" id="8_qapvr"]
 [ext_resource type="Script" path="res://tangran/Scenes/AI_Player.gd" id="8_yfc5t"]
 [ext_resource type="Texture2D" uid="uid://cn2imsxgn6aj0" path="res://PNG/tangram_puzzle_title.png" id="11_d1c7c"]
 [ext_resource type="Script" path="res://MainMenu.gd" id="11_efl8x"]
 [ext_resource type="Texture2D" uid="uid://612x3cx67pvq" path="res://PNG/person.png" id="12_5lut2"]
+[ext_resource type="Texture2D" uid="uid://sfhqyvu1jhev" path="res://PNG/image_(1)_upscaled.png" id="12_g6cii"]
+[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/circle.png" id="12_kqnbf"]
+[ext_resource type="Texture2D" uid="uid://cqashkfc1m5yc" path="res://PNG/robot_hd_white_upscaled.png" id="13_6bro5"]
 [ext_resource type="Texture2D" uid="uid://c2h8ix70rljal" path="res://PNG/Thinking1.png" id="13_m8lrg"]
 [ext_resource type="Texture2D" uid="uid://2p185iod38x2" path="res://PNG/robot.png" id="13_mhtdr"]
 [ext_resource type="Texture2D" uid="uid://bcgo80dbly8h7" path="res://PNG/eye.png" id="14_86dyq"]
+[ext_resource type="Texture2D" uid="uid://dmvrsove2if8l" path="res://PNG/file.png" id="14_o4054"]
+[ext_resource type="Texture2D" uid="uid://dx2ksnpst30qu" path="res://PNG/drawer dark.png" id="16_inusk"]
 [ext_resource type="PackedScene" uid="uid://bk0ioagvqiyew" path="res://forms.tscn" id="16_mcjkc"]
-[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/Circle.png" id="23_p3f0g"]
 [ext_resource type="Texture2D" uid="uid://cd48hp2giaxoh" path="res://PNG/fancyButton.png" id="25_sqod4"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_b0tua"]
 load_path = "res://.godot/imported/Sem Título-1.png-527bc657a279407998df4631bd53f8c5.ctex"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_vpuy8"]
-atlas = ExtResource("4_8k80g")
-region = Rect2(2363.91, 309.522, 2077.23, 2281.22)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_m70im"]
-atlas = ExtResource("5_ne6ks")
-region = Rect2(2337.33, 305.725, 2141.79, 2267.11)
-
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mtkch"]
-size = Vector2(378, 364)
+size = Vector2(338, 323)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wmf3u"]
 size = Vector2(131, 128)
@@ -70,25 +66,26 @@ offset_top = 47.0
 offset_right = 881.0
 offset_bottom = 612.0
 
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(576, 324)
+scale = Vector2(0.384, 0.324)
+texture = ExtResource("2_h2muw")
+
 [node name="Arena" type="Node2D" parent="."]
 
 [node name="Background" type="Node2D" parent="Arena"]
 modulate = Color(1, 1, 1, 0.815686)
 position = Vector2(0, -1)
 
-[node name="Sprite2D" type="Sprite2D" parent="Arena/Background"]
-position = Vector2(576, 325)
-scale = Vector2(0.384, 0.324)
-texture = ExtResource("2_h2muw")
-
 [node name="Area2D" type="Area2D" parent="Arena/Background"]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/Background/Area2D"]
 position = Vector2(2, -2)
-polygon = PackedVector2Array(0, -421, 525, -421, 496, 57, 496, 417, 880, 417, 872, 57, 496, 57, 502, 1, 525, -429, 1738, -410, 1739, 1029, 619, 1047, 616, 609, 752, 609, 752, 473, 624, 473, 616, 609, 617, 1045, -388, 1036, -368, -433)
+polygon = PackedVector2Array(0, -421, 525, -421, 496, 57, 496, 417, 880, 417, 872, 57, 496, 57, 502, 1, 525, -429, 1738, -410, 1739, 1029, 619, 1047, 955, 387, 1080, 386, 1080, 262, 954, 263, 953, 385, 617, 1045, -388, 1036, -368, -433)
 
 [node name="Objective Tag" type="Sprite2D" parent="Arena"]
-position = Vector2(1039.2, 372.245)
+visible = false
+position = Vector2(1335, 196)
 scale = Vector2(0.12, 0.104)
 texture = ExtResource("25_sqod4")
 
@@ -116,25 +113,36 @@ scale = Vector2(1.71169, 1.69314)
 texture = ExtResource("5_cg2bn")
 
 [node name="TargetDisplayText" type="Sprite2D" parent="Arena"]
-position = Vector2(1039.2, 293.6)
-scale = Vector2(0.1, 0.1)
-texture = ExtResource("5_iru1c")
+position = Vector2(599.575, 508)
+scale = Vector2(0.101452, 0.112963)
+texture = ExtResource("5_5kvke")
+
+[node name="obj" type="Label" parent="Arena/TargetDisplayText"]
+offset_left = -1109.64
+offset_top = -371.803
+offset_right = 1104.36
+offset_bottom = 30.1967
+theme_override_font_sizes/font_size = 180
+text = "We are making:"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
 
 [node name="Objective" type="Label" parent="Arena/TargetDisplayText"]
-offset_left = -786.0
-offset_top = -290.0
-offset_right = 774.0
-offset_bottom = 340.0
-theme_override_font_sizes/font_size = 180
+offset_left = -784.361
+offset_top = -97.3769
+offset_right = 775.639
+offset_bottom = 304.623
+theme_override_font_sizes/font_size = 250
 text = "Objective"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
 [node name="ChatBox" type="Sprite2D" parent="Arena"]
-position = Vector2(233, 322)
-scale = Vector2(0.232547, 0.283045)
-texture = SubResource("AtlasTexture_vpuy8")
+position = Vector2(233.982, 322)
+scale = Vector2(0.233515, 0.283045)
+texture = ExtResource("6_3q1he")
 
 [node name="TextEdit2" type="TextEdit" parent="Arena/ChatBox"]
 anchors_preset = -1
@@ -155,7 +163,7 @@ offset_top = 762.465
 offset_right = 1718.37
 offset_bottom = 1263.47
 scale = Vector2(0.25, 0.25)
-texture_normal = ExtResource("8_qapvr")
+texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="Arena/ChatBox/Send Button"]
@@ -191,12 +199,12 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Finish Button" type="TextureButton" parent="Arena"]
-offset_left = 977.0
-offset_top = 554.0
-offset_right = 2246.0
-offset_bottom = 1055.0
+offset_left = 951.0
+offset_top = 454.0
+offset_right = 2227.0
+offset_bottom = 967.0
 scale = Vector2(0.1, 0.1)
-texture_normal = ExtResource("8_qapvr")
+texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="Arena/Finish Button"]
@@ -212,10 +220,10 @@ vertical_alignment = 1
 
 [node name="Debug Button" type="TextureButton" parent="Arena"]
 modulate = Color(0.8, 1, 1, 1)
-offset_left = 977.0
-offset_top = 441.0
-offset_right = 2246.0
-offset_bottom = 942.0
+offset_left = 1286.0
+offset_top = 271.0
+offset_right = 2555.0
+offset_bottom = 772.0
 scale = Vector2(0.1, 0.1)
 texture_normal = ExtResource("8_qapvr")
 stretch_mode = 4
@@ -232,12 +240,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Controls Button" type="TextureButton" parent="Arena"]
-offset_left = 976.0
-offset_top = 499.0
-offset_right = 2245.0
-offset_bottom = 1000.0
+offset_left = 951.0
+offset_top = 513.0
+offset_right = 2227.0
+offset_bottom = 1026.0
 scale = Vector2(0.1, 0.1)
-texture_normal = ExtResource("8_qapvr")
+texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="Arena/Controls Button"]
@@ -256,17 +264,18 @@ vertical_alignment = 1
 script = ExtResource("8_yfc5t")
 
 [node name="HumanTurn" type="Sprite2D" parent="Arena"]
-position = Vector2(1034.13, 91.792)
+position = Vector2(1018.38, 116.665)
 scale = Vector2(0.25, 0.221)
-texture = ExtResource("23_p3f0g")
+texture = ExtResource("12_kqnbf")
 
 [node name="Person" type="Sprite2D" parent="Arena/HumanTurn"]
-position = Vector2(8, 4.52484)
-scale = Vector2(8, 9.04977)
-texture = ExtResource("12_5lut2")
+self_modulate = Color(1, 1, 1, 0.909804)
+position = Vector2(0.169922, 5.85114)
+scale = Vector2(3.96479, 4.52883)
+texture = ExtResource("12_g6cii")
 
 [node name="Your Turn" type="Sprite2D" parent="Arena/HumanTurn"]
-position = Vector2(11.5, 498.679)
+position = Vector2(1159.48, -229.828)
 scale = Vector2(0.48, 0.470588)
 texture = ExtResource("25_sqod4")
 
@@ -282,17 +291,18 @@ vertical_alignment = 1
 clip_text = true
 
 [node name="AITurn" type="Sprite2D" parent="Arena"]
-position = Vector2(1034.13, 91.792)
+visible = false
+position = Vector2(1018.38, 116.665)
 scale = Vector2(0.25, 0.221)
-texture = ExtResource("23_p3f0g")
+texture = ExtResource("12_kqnbf")
 
 [node name="Person" type="Sprite2D" parent="Arena/AITurn"]
-position = Vector2(8, 4.52484)
-scale = Vector2(8, 9.04977)
-texture = ExtResource("13_mhtdr")
+position = Vector2(10.4801, -3.00904)
+scale = Vector2(4, 4.3)
+texture = ExtResource("13_6bro5")
 
 [node name="Your Turn" type="Sprite2D" parent="Arena/AITurn"]
-position = Vector2(11.5, 498.679)
+position = Vector2(1143.48, 114.063)
 scale = Vector2(0.48, 0.470588)
 texture = ExtResource("25_sqod4")
 
@@ -333,12 +343,12 @@ texture = ExtResource("13_m8lrg")
 
 [node name="Undo Button" type="TextureButton" parent="Arena"]
 modulate = Color(0.568973, 0.568973, 0.568973, 1)
-offset_left = 462.0
-offset_top = 512.0
-offset_right = 1731.0
-offset_bottom = 1013.0
+offset_left = 755.0
+offset_top = 513.0
+offset_right = 2031.0
+offset_bottom = 1026.0
 scale = Vector2(0.1, 0.1)
-texture_normal = ExtResource("8_qapvr")
+texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="Arena/Undo Button"]
@@ -353,12 +363,12 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="End Turn Button" type="TextureButton" parent="Arena"]
-offset_left = 791.0
-offset_top = 509.0
-offset_right = 2060.0
-offset_bottom = 1010.0
+offset_left = 754.0
+offset_top = 454.0
+offset_right = 2030.0
+offset_bottom = 967.0
 scale = Vector2(0.1, 0.1)
-texture_normal = ExtResource("8_qapvr")
+texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
 [node name="Label" type="Label" parent="Arena/End Turn Button"]
@@ -398,41 +408,42 @@ vertical_alignment = 1
 position = Vector2(694.5, 232.868)
 
 [node name="GameBoard" type="Sprite2D" parent="Arena/ArenaBoard"]
-scale = Vector2(0.244278, 0.202795)
-texture = SubResource("AtlasTexture_m70im")
+scale = Vector2(0.241, 0.2)
+texture = ExtResource("14_o4054")
 
 [node name="BoardShape" type="CollisionShape2D" parent="Arena/ArenaBoard"]
-position = Vector2(-6.5, 3.132)
+position = Vector2(-2.5, 0.632004)
 shape = SubResource("RectangleShape2D_mtkch")
 
 [node name="VOrigin" type="PinJoint2D" parent="Arena/ArenaBoard"]
-position = Vector2(-195.515, -178.22)
+position = Vector2(-170.5, -159.868)
 
 [node name="VUpperRightCorner" type="PinJoint2D" parent="Arena/ArenaBoard"]
-position = Vector2(183, -178.22)
+position = Vector2(165.5, -160.868)
 
 [node name="VBottomLeftCorner" type="PinJoint2D" parent="Arena/ArenaBoard"]
-position = Vector2(-195.515, 183)
+position = Vector2(-171.5, 161.132)
 
 [node name="ArenaPieceDrawer" type="Area2D" parent="Arena"]
 position = Vector2(689.625, 534.58)
 
 [node name="PieceDrawer" type="Sprite2D" parent="Arena/ArenaPieceDrawer"]
+position = Vector2(327.375, -219.58)
 scale = Vector2(0.297537, 0.293055)
-texture = ExtResource("3_pokhh")
+texture = ExtResource("16_inusk")
 
 [node name="DrawerShape" type="CollisionShape2D" parent="Arena/ArenaPieceDrawer"]
-position = Vector2(-0.125, 6.41998)
+position = Vector2(329.375, -213.58)
 shape = SubResource("RectangleShape2D_wmf3u")
 
 [node name="VOrigin" type="PinJoint2D" parent="Arena/ArenaPieceDrawer"]
-position = Vector2(-65.575, -57.65)
+position = Vector2(265.375, -276.58)
 
 [node name="VBottomLeftCorner" type="PinJoint2D" parent="Arena/ArenaPieceDrawer"]
-position = Vector2(-65.575, 70.35)
+position = Vector2(264.375, -150.58)
 
 [node name="VUpperRightCorner" type="PinJoint2D" parent="Arena/ArenaPieceDrawer"]
-position = Vector2(64.425, -57.65)
+position = Vector2(393.375, -276.58)
 
 [node name="Start Menu" type="Sprite2D" parent="."]
 visible = false
@@ -465,7 +476,7 @@ scale = Vector2(0.5, 0.512)
 text = "Done"
 
 [node name="Purple" type="Area2D" parent="."]
-position = Vector2(716.25, 540)
+position = Vector2(1045, 319)
 rotation = 0.785398
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
@@ -505,7 +516,7 @@ position = Vector2(47.2878, -47.2878)
 [node name="VCenter" type="PinJoint2D" parent="Purple"]
 
 [node name="Brown" type="Area2D" parent="."]
-position = Vector2(673.75, 582)
+position = Vector2(1002.5, 361)
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
 
@@ -542,7 +553,7 @@ position = Vector2(32, 32)
 
 [node name="Cream" type="Area2D" parent="."]
 material = SubResource("ShaderMaterial_u6ny4")
-position = Vector2(662.25, 539)
+position = Vector2(991, 318)
 rotation = 1.5708
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
@@ -590,7 +601,7 @@ position = Vector2(127.5, 63.125)
 position = Vector2(3.55155e-07, 8.125)
 
 [node name="Red" type="Area2D" parent="."]
-position = Vector2(689.75, 512)
+position = Vector2(1018.5, 291)
 rotation = 3.14159
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
@@ -599,6 +610,8 @@ script = ExtResource("2_54w1k")
 position = Vector2(8, -64)
 rotation = 2.35619
 color = Color(0.823529, 0, 0.117647, 1)
+texture_scale = Vector2(6.175, 9.82)
+texture_rotation = 2.97579
 polygon = PackedVector2Array(3.62378, -178.81, 5.3916, 6.80591, 187.472, 5.03833)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Red"]
@@ -637,7 +650,7 @@ position = Vector2(-68.75, -67.5)
 position = Vector2(68.75, -67.5)
 
 [node name="Yellow" type="Area2D" parent="."]
-position = Vector2(733.25, 513)
+position = Vector2(1062, 292)
 rotation = -1.5708
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
@@ -682,7 +695,7 @@ position = Vector2(-40, -41.5)
 position = Vector2(40, -41.5)
 
 [node name="Green" type="Area2D" parent="."]
-position = Vector2(689.25, 554)
+position = Vector2(1018, 333)
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")
 
@@ -728,7 +741,7 @@ position = Vector2(-40, -41.5)
 position = Vector2(40, -41.5)
 
 [node name="Blue" type="Area2D" parent="."]
-position = Vector2(729.25, 581)
+position = Vector2(1058, 360)
 rotation = 3.92699
 scale = Vector2(0.4, 0.4)
 script = ExtResource("2_54w1k")

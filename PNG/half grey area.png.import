@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cp42m3t1najkc"
-path="res://.godot/imported/circle.png-123edc9d0d8b9bc78ab721b9a856902d.ctex"
+uid="uid://33nfn3xgvwig"
+path="res://.godot/imported/half grey area.png-bed803f5366b32ce7c599129e4e68d77.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://PNG/circle.png"
-dest_files=["res://.godot/imported/circle.png-123edc9d0d8b9bc78ab721b9a856902d.ctex"]
+source_file="res://PNG/half grey area.png"
+dest_files=["res://.godot/imported/half grey area.png-bed803f5366b32ce7c599129e4e68d77.ctex"]
 
 [params]
 
