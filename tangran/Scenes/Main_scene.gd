@@ -278,74 +278,40 @@ func get_game_state2(leftX: float, rightX: float, bottomY: float, topY: float) -
 	return ", ".join(positions_rotations) + ", all other pieces are in the drawer." + "\n\n"
 
 
-# Scaling is not straightfoward in godot, this work fines for normal windown and fullscreen
-func get_board_screen():
-	var pos_x = 880
-	var pos_y = 115
-	var width = 562
-	var height = 540
-	
-	var image = get_viewport().get_texture().get_image()
-
-	var _width = image.get_width()
-	var _height = image.get_height()
-	var multH = (_height/1080.0)
-	var multW = (_width/1920.0)
-
-	var region
-
-	if multH > multW:
-		region = Rect2(0, _height*(abs(multH-multW)/2), _width, _height - _height*(abs(multH-multW)))
-		image = image.get_region(region)
-	if multW > multH:
-		region = Rect2(_width*(abs(multH-multW)/2), 0, _width - _width*(abs(multH-multW)), _height)
-		image = image.get_region(region)
-
-	_width = image.get_width()
-	_height = image.get_height()
-	multH = (_height/1080.0)
-	multW = (_width/1920.0)
-
-	region = Rect2(pos_x*multW, pos_y*multH, width*multW, height*multH)
-
-	image = image.get_region(region)
-
-
-	return image
-
-func get_piece_drawer_screen():
-	var pos_x = 1600
-	var pos_y = 425
-	var width = 210
-	var height = 210
-	
+# Helper function to extract a region from the viewport texture
+func extract_region_from_viewport(pos_x: int, pos_y: int, width: int, height: int) -> Image:
 	var image = get_viewport().get_texture().get_image()
 	
 	var _width = image.get_width()
 	var _height = image.get_height()
-	var multH = (_height/1080.0)
-	var multW = (_width/1920.0)
+	var multH = (_height / 1080.0)
+	var multW = (_width / 1920.0)
 
-	var region
-
+	# Adjust the image region based on the scaling factors
 	if multH > multW:
-		region = Rect2(0, _height*(abs(multH-multW)/2), _width, _height - _height*(abs(multH-multW)))
+		var region = Rect2(0, _height * (abs(multH - multW) / 2), _width, _height - _height * (abs(multH - multW)))
 		image = image.get_region(region)
-	if multW > multH:
-		region = Rect2(_width*(abs(multH-multW)/2), 0, _width - _width*(abs(multH-multW)), _height)
+	elif multW > multH:
+		var region = Rect2(_width * (abs(multH - multW) / 2), 0, _width - _width * (abs(multH - multW)), _height)
 		image = image.get_region(region)
 
+	# Recalculate dimensions and scaling factors after cropping
 	_width = image.get_width()
 	_height = image.get_height()
-	multH = (_height/1080.0)
-	multW = (_width/1920.0)
+	multH = (_height / 1080.0)
+	multW = (_width / 1920.0)
 
-	region = Rect2(pos_x*multW, pos_y*multH, width*multW, height*multH)
+	# Extract the final region of interest
+	var final_region = Rect2(pos_x * multW, pos_y * multH, width * multW, height * multH)
+	return image.get_region(final_region)
 
-	image = image.get_region(region)
+# Function to get the board screen
+func get_board_screen() -> Image:
+	return extract_region_from_viewport(880, 115, 562, 540)
 
-
-	return image
+# Function to get the piece drawer screen
+func get_piece_drawer_screen() -> Image:
+	return extract_region_from_viewport(1600, 425, 210, 210)
 	
 
 func _on_data_set_entry_button_pressed():
