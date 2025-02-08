@@ -19,6 +19,8 @@ var figures_outside_board = []
 var movedPiece = ""
 var originalPos
 var originalRot
+var preMovePos
+var preMoveRot
 var hasRequest = false
 
 var debugMode = false
@@ -93,8 +95,6 @@ func _process(_delta):
 	
 	time_elapsed += _delta
 		
-	if obj_selected != "" and get_node(obj_selected).overlapping and not dragging:
-		undo()
 	if current_turn == "Player":
 		get_node("Arena/AITurn").hide()
 		get_node("Arena/HumanTurn").show()
@@ -163,11 +163,21 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, node_name):
 			if event.is_pressed():
 				dragging = true
 				get_node(obj_selected).start_drag()
+				preMovePos = get_node(obj_selected).position
+				preMoveRot = get_node(obj_selected).rotation
 			else:
 				if not get_node(obj_selected).overlapping:
 					dragging = false
 					last_move = "drop"
 					get_node(obj_selected).end_drag()
+				else:
+					print("overlapping")
+					dragging = false
+					last_move = ""
+					get_node(obj_selected).end_drag()
+					get_node(movedPiece).position = preMovePos
+					get_node(movedPiece).rotation = preMoveRot
+					movedPiece = ""
 					
 		elif Input.is_action_just_pressed("Ctrl_Right_click"):
 			last_move = "turned x"

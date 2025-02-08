@@ -220,10 +220,10 @@ vertical_alignment = 1
 
 [node name="Debug Button" type="TextureButton" parent="Arena"]
 modulate = Color(0.8, 1, 1, 1)
-offset_left = 1286.0
-offset_top = 271.0
-offset_right = 2555.0
-offset_bottom = 772.0
+offset_left = 1830.0
+offset_top = 186.0
+offset_right = 3099.0
+offset_bottom = 687.0
 scale = Vector2(0.1, 0.1)
 texture_normal = ExtResource("8_qapvr")
 stretch_mode = 4
@@ -275,7 +275,7 @@ scale = Vector2(3.96479, 4.52883)
 texture = ExtResource("12_g6cii")
 
 [node name="Your Turn" type="Sprite2D" parent="Arena/HumanTurn"]
-position = Vector2(1159.48, -229.828)
+position = Vector2(3514.48, 87.4887)
 scale = Vector2(0.48, 0.470588)
 texture = ExtResource("25_sqod4")
 
