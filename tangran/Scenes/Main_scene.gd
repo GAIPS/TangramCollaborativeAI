@@ -79,7 +79,7 @@ func _process(_delta):
 						if message_type == "finish":
 							finishPlayRequest()
 						if message_type == "chat":
-							$"Arena/ChatBox/AI_Chat".add_message(data["content"], true)
+							$"Arena/ChatBox/AI_Chat".add_message(data["message"], true)
 							registerAIChat()
 
 	if current_turn == "Player":
@@ -88,14 +88,14 @@ func _process(_delta):
 		get_node("Arena/End Turn Button").modulate = Color8(255, 255, 255, 255)
 		if movedPiece and not debugMode:
 			get_node("Arena/Undo Button").modulate = Color8(255, 255, 255, 255)
-			for piece in ["Red", "Yellow", "Cream", "Blue", "Green", "Purple", "Brown"]:
+			for piece in shapes:
 				if piece != movedPiece:
 					get_node(piece).get_child(0).modulate = Color8(145, 145, 145, 255)	
 				else:
 					get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
 		else:
 			get_node("Arena/Undo Button").modulate = Color8(145, 145, 145, 255)		
-			for piece in ["Red", "Yellow", "Cream", "Blue", "Green", "Purple", "Brown"]:
+			for piece in shapes:
 				get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
 		if hasRequest:
 			get_node("Arena/End Turn Button").modulate = Color8(145, 145, 145, 255)
@@ -136,7 +136,7 @@ func updateFigureLocation():
 				break
 
 func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
-	if event is InputEventMouseButton and !$"Start Menu".visible and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
+	if event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
 		if not movedPiece or debugMode:
 			movedPiece = obj_selected
 			originalPos = get_node(obj_selected).position
@@ -174,6 +174,12 @@ func ai_play():
 	var json_body = JSON.stringify(body)
 	ws.send_text(json_body)
 
+func sendChatMsg(message):
+	registerPlayerChat()
+	var body = {"type": "chat", "message": message}
+	var json_body = JSON.stringify(body)
+	ws.send_text(json_body)
+
 func aiPlayRequest(data):
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
@@ -189,7 +195,7 @@ func wait(seconds: float) -> void:
 func finishPlayRequest():
 	setPlayerTurn()
 
-#####  Relational agent #####
+#####  Game State #####
 #############################
 
 func getVerticePosition(node_path : String) -> Vector2:
@@ -211,7 +217,6 @@ func getShapePosition(figure_name: String) -> Dictionary:
 
 	return figure_state
 
-	
 func get_game_state() -> Dictionary:	
 	var state = {"on_board" : [],"off_board" : []}
 	updateFigureLocation() # DEL
@@ -261,7 +266,6 @@ func simpleToReal(coords: Vector2) -> Vector2:
 	
 	return Vector2(real_x, real_y)
 
-
 #####  Stats #####
 ##################
 func registerPlayerChat():
@@ -269,6 +273,32 @@ func registerPlayerChat():
 
 func registerAIChat():
 	chatReceived += 1
+
+func saveStatistics(formData):
+
+	var file = FileAccess.open("Stats.txt", FileAccess.WRITE_READ) #WRITE_READ creates the file when it doesn't exist (which READ_WRITE does not do)
+
+	file.seek_end()
+	file.store_line("")
+	
+	# Store the variables in the file
+	file.store_line(str(getElapsedTime()))
+	file.store_line(str(chatSent))
+	file.store_line(str(chatReceived))
+	file.store_line(str(formData))
+
+	var logs = $Arena/AI_Player.getUpdatedLog()
+	var chatLogs = $Arena/ChatBox/AI_Chat.getUpdatedLog()
+
+	if len(chatLogs) > len(logs):
+		logs = chatLogs
+
+	file.store_line(str(logs))
+
+	# Close the file
+	file.close()
+
+	print("Data saved!")
 
 #####  Actions  #####
 #####################
@@ -347,32 +377,6 @@ func get_board_screen() -> Image:
 
 func get_piece_drawer_screen() -> Image:
 	return extract_region_from_viewport(1600, 425, 210, 210)
-	
-func saveStatistics(formData):
-
-	var file = FileAccess.open("Stats.txt", FileAccess.WRITE_READ) #WRITE_READ creates the file when it doesn't exist (which READ_WRITE does not do)
-
-	file.seek_end()
-	file.store_line("")
-	
-	# Store the variables in the file
-	file.store_line(str(getElapsedTime()))
-	file.store_line(str(chatSent))
-	file.store_line(str(chatReceived))
-	file.store_line(str(formData))
-
-	var logs = $Arena/AI_Player.getUpdatedLog()
-	var chatLogs = $Arena/ChatBox/AI_Chat.getUpdatedLog()
-
-	if len(chatLogs) > len(logs):
-		logs = chatLogs
-
-	file.store_line(str(logs))
-
-	# Close the file
-	file.close()
-
-	print("Data saved!")
 
 #####  Input Handling  #####
 ############################

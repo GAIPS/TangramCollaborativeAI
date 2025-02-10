@@ -1,18 +1,15 @@
-[gd_scene load_steps=32 format=3 uid="uid://s8dxi34l715s"]
+[gd_scene load_steps=29 format=3 uid="uid://s8dxi34l715s"]
 
-[ext_resource type="Script" path="res://tangran/Scripts/chatGPT.gd" id="1_gb3b3"]
+[ext_resource type="Script" path="res://tangran/Scripts/chat.gd" id="1_gb3b3"]
 [ext_resource type="Script" path="res://tangran/Scenes/Main_scene.gd" id="1_k473l"]
-[ext_resource type="Script" path="res://tangran/Scenes/shapes.gd" id="2_54w1k"]
+[ext_resource type="Script" path="res://tangran/Scripts/shapes.gd" id="2_54w1k"]
 [ext_resource type="Texture2D" uid="uid://buf2cb6sjf30o" path="res://PNG/4853433.jpg" id="2_h2muw"]
-[ext_resource type="Texture2D" uid="uid://3igoxebo26hb" path="res://PNG/Sem Título-1.png" id="3_pokhh"]
 [ext_resource type="PackedScene" uid="uid://2upigcih6078" path="res://control.tscn" id="4_fbgl8"]
 [ext_resource type="Texture2D" uid="uid://kco07w0eokmk" path="res://PNG/file (2).png" id="5_5kvke"]
 [ext_resource type="Texture2D" uid="uid://drtf76bexlri1" path="res://PNG/task1.png" id="5_cg2bn"]
 [ext_resource type="Texture2D" uid="uid://bxyp82tijx1lf" path="res://PNG/Grey Chat.png" id="6_3q1he"]
 [ext_resource type="Texture2D" uid="uid://b47fh428hlm8y" path="res://PNG/Antique Button.png" id="7_pduci"]
-[ext_resource type="Script" path="res://tangran/Scenes/StartMenu.gd" id="8_mi8wj"]
 [ext_resource type="Texture2D" uid="uid://bnnpsvr735etn" path="res://PNG/octaButton.png" id="8_qapvr"]
-[ext_resource type="Script" path="res://tangran/Scenes/AI_Player.gd" id="8_yfc5t"]
 [ext_resource type="Texture2D" uid="uid://cn2imsxgn6aj0" path="res://PNG/tangram_puzzle_title.png" id="11_d1c7c"]
 [ext_resource type="Script" path="res://MainMenu.gd" id="11_efl8x"]
 [ext_resource type="Texture2D" uid="uid://612x3cx67pvq" path="res://PNG/person.png" id="12_5lut2"]
@@ -58,13 +55,6 @@ shader = SubResource("Shader_j83ia")
 
 [node name="MainScene" type="Node2D"]
 script = ExtResource("1_k473l")
-
-[node name="SSPanel" type="Panel" parent="."]
-visible = false
-offset_left = 491.0
-offset_top = 47.0
-offset_right = 881.0
-offset_bottom = 612.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(576, 324)
@@ -260,9 +250,6 @@ text = "Controls
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="AI_Player" type="Node2D" parent="Arena"]
-script = ExtResource("8_yfc5t")
-
 [node name="HumanTurn" type="Sprite2D" parent="Arena"]
 position = Vector2(1018.38, 116.665)
 scale = Vector2(0.25, 0.221)
@@ -390,36 +377,6 @@ position = Vector2(264.375, -150.58)
 
 [node name="VUpperRightCorner" type="PinJoint2D" parent="Arena/ArenaPieceDrawer"]
 position = Vector2(393.375, -276.58)
-
-[node name="Start Menu" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(581, 257)
-scale = Vector2(3, 3)
-texture = ExtResource("3_pokhh")
-script = ExtResource("8_mi8wj")
-
-[node name="Label" type="Label" parent="Start Menu"]
-offset_left = -80.5
-offset_top = 19.642
-offset_right = 87.5
-offset_bottom = 42.642
-text = "Tap a piece to discard"
-
-[node name="undo" type="Button" parent="Start Menu"]
-offset_left = 152.0
-offset_top = 80.0
-offset_right = 202.0
-offset_bottom = 111.0
-scale = Vector2(0.5, 0.515)
-text = "Undo"
-
-[node name="Done" type="Button" parent="Start Menu"]
-offset_left = 151.667
-offset_top = 100.333
-offset_right = 201.667
-offset_bottom = 131.333
-scale = Vector2(0.5, 0.512)
-text = "Done"
 
 [node name="Purple" type="Area2D" parent="."]
 position = Vector2(1045, 319)
@@ -795,29 +752,20 @@ zoom = Vector2(1.67, 1.67)
 [connection signal="pressed" from="Arena/Controls Button" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="Arena/Undo Button" to="." method="_undo_play"]
 [connection signal="pressed" from="Arena/End Turn Button" to="." method="finishPlayerTurn"]
-[connection signal="pressed" from="Start Menu/undo" to="Start Menu" method="_on_undo_pressed"]
-[connection signal="pressed" from="Start Menu/Done" to="Start Menu" method="_on_done_pressed"]
 [connection signal="input_event" from="Purple" to="." method="_on_DraggableObject_input_event" binds= ["Purple"]]
-[connection signal="input_event" from="Purple" to="Start Menu" method="_on_input_event" binds= ["Purple"]]
 [connection signal="mouse_entered" from="Purple" to="." method="_on_mouse_entered" binds= ["Purple"]]
 [connection signal="input_event" from="Brown" to="." method="_on_DraggableObject_input_event" binds= ["Brown"]]
-[connection signal="input_event" from="Brown" to="Start Menu" method="_on_input_event" binds= ["Brown"]]
 [connection signal="mouse_entered" from="Brown" to="." method="_on_mouse_entered" binds= ["Brown"]]
 [connection signal="input_event" from="Cream" to="." method="_on_DraggableObject_input_event" binds= ["Cream"]]
-[connection signal="input_event" from="Cream" to="Start Menu" method="_on_input_event" binds= ["Cream"]]
 [connection signal="mouse_entered" from="Cream" to="." method="_on_mouse_entered" binds= ["Cream"]]
 [connection signal="input_event" from="Red" to="." method="_on_DraggableObject_input_event" binds= ["Red"]]
-[connection signal="input_event" from="Red" to="Start Menu" method="_on_input_event" binds= ["Red"]]
 [connection signal="mouse_entered" from="Red" to="." method="_on_mouse_entered" binds= ["Red"]]
 [connection signal="input_event" from="Yellow" to="." method="_on_DraggableObject_input_event" binds= ["Yellow"]]
-[connection signal="input_event" from="Yellow" to="Start Menu" method="_on_input_event" binds= ["Yellow"]]
 [connection signal="mouse_entered" from="Yellow" to="." method="_on_mouse_entered" binds= ["Yellow"]]
 [connection signal="area_entered" from="Green" to="Green" method="_on_area_entered"]
 [connection signal="input_event" from="Green" to="." method="_on_DraggableObject_input_event" binds= ["Green"]]
-[connection signal="input_event" from="Green" to="Start Menu" method="_on_input_event" binds= ["Green"]]
 [connection signal="mouse_entered" from="Green" to="." method="_on_mouse_entered" binds= ["Green"]]
 [connection signal="input_event" from="Blue" to="." method="_on_DraggableObject_input_event" binds= ["Blue"]]
-[connection signal="input_event" from="Blue" to="Start Menu" method="_on_input_event" binds= ["Blue"]]
 [connection signal="mouse_entered" from="Blue" to="." method="_on_mouse_entered" binds= ["Blue"]]
 [connection signal="pressed" from="Main Menu/MenuChoices/NoAIChoice" to="Main Menu" method="_on_no_ai_choice_pressed"]
 [connection signal="pressed" from="Main Menu/MenuChoices/TurnBasedAI" to="Main Menu" method="_on_turn_based_ai_pressed"]
