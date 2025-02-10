@@ -71,7 +71,7 @@ position = Vector2(0, -1)
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Arena/Background/Area2D"]
 position = Vector2(2, -2)
-polygon = PackedVector2Array(0, -421, 525, -421, 496, 57, 496, 417, 880, 417, 872, 57, 496, 57, 502, 1, 525, -429, 1738, -410, 1739, 1029, 619, 1047, 955, 387, 1080, 386, 1080, 262, 954, 263, 953, 385, 617, 1045, -388, 1036, -368, -433)
+polygon = PackedVector2Array(0, -421, 525, -421, 519, 75, 520, 398, 860, 400, 862, 74, 522, 72, 522, 2, 525, -429, 1738, -410, 1739, 1029, 619, 1047, 955, 387, 1080, 386, 1080, 262, 954, 263, 953, 385, 617, 1045, -388, 1036, -368, -433)
 
 [node name="Objective Tag" type="Sprite2D" parent="Arena"]
 visible = false

@@ -1,5 +1,12 @@
 extends Node2D
 
+const AI_PROFILE 	 	= "Arena/AITurn"
+const HUMAN_PROFILE 	= "Arena/HumanTurn"
+const END_TURN_BUTTON 	= "Arena/End Turn Button"
+const UNDO_BUTTON    	= "Arena/Undo Button"
+const FINISH_BUTTON 	= "Arena/Finish Button"
+const CONTROLS_BUTTON  = "Arena/Controls Button"
+
 var current_turn = ""
 var game_task
 
@@ -61,79 +68,93 @@ func _process(_delta):
 		while ws.get_available_packet_count():
 			var packet = ws.get_packet()
 			var json_string = packet.get_string_from_utf8()
-			print("Got data from server: ", json_string)
-
-			# Parse the JSON string into a dictionary
 			var json = JSON.new()
 			var error = json.parse(json_string)
+
 			if error == OK:
 				var data = json.get_data()
 				if typeof(data) == TYPE_DICTIONARY:
-					# Check the "type" field
+
 					if data.has("type"):
 						var message_type = data["type"]
-						print("Message type: ", message_type)
-						# Handle the message based on its type
+
 						if message_type == "play":
 							aiPlayRequest(data)
+
 						if message_type == "finish":
 							finishPlayRequest()
+
 						if message_type == "chat":
 							$"Arena/ChatBox/AI_Chat".add_message(data["message"], true)
 							registerAIChat()
 
 	if current_turn == "Player":
-		get_node("Arena/AITurn").hide()
-		get_node("Arena/HumanTurn").show()
-		get_node("Arena/End Turn Button").modulate = Color8(255, 255, 255, 255)
+		get_node(AI_PROFILE).hide()
+		get_node(HUMAN_PROFILE).show()
+		color(END_TURN_BUTTON, true)
+		color(CONTROLS_BUTTON, true)
+		color(FINISH_BUTTON, true)
+
 		if movedPiece and not debugMode:
-			get_node("Arena/Undo Button").modulate = Color8(255, 255, 255, 255)
+			color(UNDO_BUTTON, true)
 			for piece in shapes:
 				if piece != movedPiece:
 					get_node(piece).get_child(0).modulate = Color8(145, 145, 145, 255)	
 				else:
 					get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
 		else:
-			get_node("Arena/Undo Button").modulate = Color8(145, 145, 145, 255)		
+			color(UNDO_BUTTON, false)	
 			for piece in shapes:
 				get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
-		if hasRequest:
-			get_node("Arena/End Turn Button").modulate = Color8(145, 145, 145, 255)
-	else:
-		get_node("Arena/AITurn").show()
-		get_node("Arena/HumanTurn").hide()
-		get_node("Arena/End Turn Button").modulate = Color8(145, 145, 145, 255)
-		get_node("Arena/Undo Button").modulate = Color8(145, 145, 145, 255)		
-		if time_elapsed > ANIM_THINK_TIME:
-			if thinking_asc:
-				if curr_think_state == 4:
-					curr_think_state -= 1
-					get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-					thinking_asc = false
-					curr_think_state -= 1
-				else:
-					get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-					curr_think_state += 1
-			else:
-				if curr_think_state == 1:
-					curr_think_state += 1
-					get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-					thinking_asc = true
-					curr_think_state += 1
-				else:
-					get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-					curr_think_state -= 1
-			time_elapsed = 0
 
-	updateFigureLocation() # Probably can be less often
-	
-func updateFigureLocation():
-	for shape in shapes:
-		shapes[shape]["onBoard"] = false
-		for figure in $Arena/ArenaBoard.get_overlapping_areas():
-			if figure.name == shape:
-				shapes[shape]["onBoard"] = true
-				break
+		if dragging:
+			color(END_TURN_BUTTON, false)
+			color(CONTROLS_BUTTON, false)
+			color(FINISH_BUTTON, false)
+			color(UNDO_BUTTON, false)
+
+		if hasRequest:
+			get_node(END_TURN_BUTTON).modulate = Color8(145, 145, 145, 255)
+	else:
+		get_node(AI_PROFILE).show()
+		get_node(HUMAN_PROFILE).hide()
+		color(END_TURN_BUTTON, false)
+		color(UNDO_BUTTON, false)
+		color(CONTROLS_BUTTON, true)
+		color(FINISH_BUTTON, false)
+		for piece in shapes:
+			get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
+		thinkingAnimation()	
+		
+	updateFigureLocation() # Probably can be called less often
+
+func color(nodeName, b: bool):
+	if b:
+		get_node(nodeName).modulate = Color8(255, 255, 255, 255)
+	else:
+		get_node(nodeName).modulate = Color8(145, 145, 145, 255)
+
+func thinkingAnimation():
+	if time_elapsed > ANIM_THINK_TIME:
+		if thinking_asc:
+			if curr_think_state == 4:
+				curr_think_state -= 1
+				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
+				thinking_asc = false
+				curr_think_state -= 1
+			else:
+				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
+				curr_think_state += 1
+		else:
+			if curr_think_state == 1:
+				curr_think_state += 1
+				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
+				thinking_asc = true
+				curr_think_state += 1
+			else:
+				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
+				curr_think_state -= 1
+		time_elapsed = 0
 
 func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 	if event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
@@ -197,6 +218,13 @@ func finishPlayRequest():
 
 #####  Game State #####
 #############################
+func updateFigureLocation():
+	for shape in shapes:
+		shapes[shape]["onBoard"] = false
+		for figure in $Arena/ArenaBoard.get_overlapping_areas():
+			if figure.name == shape:
+				shapes[shape]["onBoard"] = true
+				break
 
 func getVerticePosition(node_path : String) -> Vector2:
 	var board_origin_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
@@ -219,7 +247,7 @@ func getShapePosition(figure_name: String) -> Dictionary:
 
 func get_game_state() -> Dictionary:	
 	var state = {"on_board" : [],"off_board" : []}
-	updateFigureLocation() # DEL
+	updateFigureLocation()
 
 	for shape in shapes:
 		if shapes[shape]["onBoard"]:
@@ -384,6 +412,9 @@ func _on_Debug_button_pressed():
 	debugMode = !debugMode
 
 func _on_finish_button_pressed():
+	if current_turn != "Player":
+		return
+		
 	for node in get_children():
 		node.hide()
 	get_node("Forms").show()
