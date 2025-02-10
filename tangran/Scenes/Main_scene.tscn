@@ -274,22 +274,6 @@ position = Vector2(0.169922, 5.85114)
 scale = Vector2(3.96479, 4.52883)
 texture = ExtResource("12_g6cii")
 
-[node name="Your Turn" type="Sprite2D" parent="Arena/HumanTurn"]
-position = Vector2(3514.48, 87.4887)
-scale = Vector2(0.48, 0.470588)
-texture = ExtResource("25_sqod4")
-
-[node name="Label" type="Label" parent="Arena/HumanTurn/Your Turn"]
-offset_left = -447.0
-offset_top = -130.0
-offset_right = 440.0
-offset_bottom = 160.0
-theme_override_font_sizes/font_size = 180
-text = "Your Turn"
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
-
 [node name="AITurn" type="Sprite2D" parent="Arena"]
 visible = false
 position = Vector2(1018.38, 116.665)
@@ -300,22 +284,6 @@ texture = ExtResource("12_kqnbf")
 position = Vector2(10.4801, -3.00904)
 scale = Vector2(4, 4.3)
 texture = ExtResource("13_6bro5")
-
-[node name="Your Turn" type="Sprite2D" parent="Arena/AITurn"]
-position = Vector2(1143.48, 114.063)
-scale = Vector2(0.48, 0.470588)
-texture = ExtResource("25_sqod4")
-
-[node name="Label" type="Label" parent="Arena/AITurn/Your Turn"]
-offset_left = -447.0
-offset_top = -130.0
-offset_right = 440.0
-offset_bottom = 160.0
-theme_override_font_sizes/font_size = 180
-text = "AI's Turn"
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
 
 [node name="Sprite2D" type="Sprite2D" parent="Arena/AITurn"]
 z_index = 4096
@@ -379,28 +347,6 @@ offset_right = 1120.0
 offset_bottom = 393.0
 theme_override_font_sizes/font_size = 200
 text = "End Turn"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="DataSet Entry Button" type="TextureButton" parent="Arena"]
-visible = false
-modulate = Color(0.160784, 1, 1, 1)
-offset_left = 791.0
-offset_top = 568.0
-offset_right = 2060.0
-offset_bottom = 1069.0
-scale = Vector2(0.1, 0.1)
-texture_normal = ExtResource("8_qapvr")
-stretch_mode = 4
-
-[node name="Label" type="Label" parent="Arena/DataSet Entry Button"]
-layout_mode = 0
-offset_left = 150.0
-offset_top = 120.0
-offset_right = 1120.0
-offset_bottom = 393.0
-theme_override_font_sizes/font_size = 200
-text = "Get Entry"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -849,7 +795,6 @@ zoom = Vector2(1.67, 1.67)
 [connection signal="pressed" from="Arena/Controls Button" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="Arena/Undo Button" to="." method="_undo_play"]
 [connection signal="pressed" from="Arena/End Turn Button" to="." method="finishPlayerTurn"]
-[connection signal="pressed" from="Arena/DataSet Entry Button" to="." method="_on_data_set_entry_button_pressed"]
 [connection signal="pressed" from="Start Menu/undo" to="Start Menu" method="_on_undo_pressed"]
 [connection signal="pressed" from="Start Menu/Done" to="Start Menu" method="_on_done_pressed"]
 [connection signal="input_event" from="Purple" to="." method="_on_DraggableObject_input_event" binds= ["Purple"]]

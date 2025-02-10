@@ -1,20 +1,22 @@
 extends Node2D
 
-var game_mode = ""
 var current_turn = ""
-
 var game_task
 
 var obj_selected = "" 
 var dragging = false
 var overlapping = false
 var last_move = ""
-var report = ""
 
-const figures_info = {"Red" : "", "Yellow" : "", "Green" : "", "Blue" : "", "Purple" : "" , "Brown" : "", "Cream" : ""}
-var figures_on_board = []
-var figures_outside_board = []
-
+var shapes = {
+	"Red": 		{"onBoard": false},
+	"Yellow": 	{"onBoard": false},
+	"Green": 	{"onBoard": false},
+	"Blue": 	{"onBoard": false},
+	"Purple": 	{"onBoard": false},
+	"Brown": 	{"onBoard": false},
+	"Cream": 	{"onBoard": false}
+}
 
 var movedPiece = ""
 var originalPos
@@ -36,65 +38,50 @@ var thinking_asc
 var curr_think_state
 const ANIM_THINK_TIME = 1
 
-#Tasks
+#Websocket
+var request
+@export var websocket_url = "ws://localhost:5000"
+var ws = WebSocketPeer.new()
 
+#Tasks
 var possible_tasks = ["A house", "A fish", "A human", "A rocket", "A cat", "A robot"]
 
 func _ready():
 	game_task = possible_tasks[randi_range(0,possible_tasks.size()-1)]
 	$"Arena/TargetDisplayText/Objective".text = game_task
-	#$Arena/TargetDisplay/task.texture = load("res://PNG/Task_Colors_" + str(game_task) + ".png")
-	game_mode = "Turn Based AI"
 	current_turn = "Player"
 	startTime = Time.get_datetime_dict_from_system()
-	print(startTime)
-
-	#AI_move_pice("Green", Vector2(100, 100), PI/2, 2.0)
-
-func getElapsedTime():
-	var currentTime = Time.get_datetime_dict_from_system()
-	var elapsed_seconds = (Time.get_unix_time_from_datetime_dict(currentTime) - Time.get_unix_time_from_datetime_dict(startTime))
-	return elapsed_seconds
-
-func registerPlayerChat():
-	chatSent += 1
-
-func registerAIChat():
-	chatReceived += 1
-
-func SetHasRequest(value):
-	hasRequest = value
-	
-func setPlayerTurn():
-	current_turn = "Player"
-	movedPiece = ""
-	SetHasRequest(false)
-
-# TODO: ADD INTERACTION TO INTERACTION HISTORY, may not use relative move grammar, and coordinates instead
-func finishPlayerTurn():
-	if movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
-		current_turn = "AI"
-		thinking_asc = true
-		time_elapsed = 0.0
-		curr_think_state = 1
-		SetHasRequest(true)
-		ai_play() #TODO: ADD HISTORY AND INSTRUCTION AS CONTEXT 
-
-func _undo_play():
-	if movedPiece and not dragging and current_turn == "Player":
-		get_node(movedPiece).position = originalPos
-		get_node(movedPiece).rotation = originalRot
-		movedPiece = ""
+	ws.connect_to_url(websocket_url) 
 
 func _process(_delta):
-	#DEBUG -- uncomment prints you need for testing
-	#print(get_game_state())
-	#print("FIGURES ON BOARD: " + ",".join(figures_on_board))
-	#print("FIGURES OUTSIDE BOARD: " + ",".join(figures_outside_board))
-	#print(get_game_state())
-	
 	time_elapsed += _delta
-		
+	ws.poll()
+	var state = ws.get_ready_state()
+	if state == WebSocketPeer.STATE_OPEN:
+		while ws.get_available_packet_count():
+			var packet = ws.get_packet()
+			var json_string = packet.get_string_from_utf8()
+			print("Got data from server: ", json_string)
+
+			# Parse the JSON string into a dictionary
+			var json = JSON.new()
+			var error = json.parse(json_string)
+			if error == OK:
+				var data = json.get_data()
+				if typeof(data) == TYPE_DICTIONARY:
+					# Check the "type" field
+					if data.has("type"):
+						var message_type = data["type"]
+						print("Message type: ", message_type)
+						# Handle the message based on its type
+						if message_type == "play":
+							aiPlayRequest(data)
+						if message_type == "finish":
+							finishPlayRequest()
+						if message_type == "chat":
+							$"Arena/ChatBox/AI_Chat".add_message(data["content"], true)
+							registerAIChat()
+
 	if current_turn == "Player":
 		get_node("Arena/AITurn").hide()
 		get_node("Arena/HumanTurn").show()
@@ -118,7 +105,6 @@ func _process(_delta):
 		get_node("Arena/End Turn Button").modulate = Color8(145, 145, 145, 255)
 		get_node("Arena/Undo Button").modulate = Color8(145, 145, 145, 255)		
 		if time_elapsed > ANIM_THINK_TIME:
-			print(time_elapsed)
 			if thinking_asc:
 				if curr_think_state == 4:
 					curr_think_state -= 1
@@ -138,21 +124,18 @@ func _process(_delta):
 					get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
 					curr_think_state -= 1
 			time_elapsed = 0
+
+	updateFigureLocation() # Probably can be less often
 	
-	var figures_on_board_now = []
-	for figure in $Arena/ArenaBoard.get_overlapping_areas():
-		if figure.name in figures_info.keys():
-			figures_on_board_now.append(figure.name)
-	figures_on_board = figures_on_board_now
-	
-	var figures_outside_board_now = []
-	for figure in figures_info.keys():
-		if figure not in figures_on_board:
-			figures_outside_board_now.append(figure)
-	figures_outside_board = figures_outside_board_now
-	
-	
-func _on_DraggableObject_input_event(_viewport, event, _shape_idx, node_name):
+func updateFigureLocation():
+	for shape in shapes:
+		shapes[shape]["onBoard"] = false
+		for figure in $Arena/ArenaBoard.get_overlapping_areas():
+			if figure.name == shape:
+				shapes[shape]["onBoard"] = true
+				break
+
+func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 	if event is InputEventMouseButton and !$"Start Menu".visible and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
 		if not movedPiece or debugMode:
 			movedPiece = obj_selected
@@ -171,17 +154,12 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, node_name):
 					last_move = "drop"
 					get_node(obj_selected).end_drag()
 				else:
-					print("overlapping")
 					dragging = false
 					last_move = ""
 					get_node(obj_selected).end_drag()
 					get_node(movedPiece).position = preMovePos
 					get_node(movedPiece).rotation = preMoveRot
 					movedPiece = ""
-					
-		elif Input.is_action_just_pressed("Ctrl_Right_click"):
-			last_move = "turned x"
-			get_node(obj_selected).scale.y *= -1
 			
 		elif Input.is_action_just_pressed("Right_click"):
 			last_move = "rotated"
@@ -189,106 +167,155 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, node_name):
 				get_node(obj_selected).rotation = 0
 			else:
 				get_node(obj_selected).rotation += PI/4
-					
-		elif Input.is_action_just_pressed("Ctrl_click"):
-			last_move = "turned y"
-			get_node(obj_selected).scale.x *= -1
 
 func ai_play():
 	obj_selected = ""
-	await $Arena/AI_Player.ai_play(game_task)
-	
-func undo():
-	dragging = true
-	get_node(obj_selected).start_drag()
-	last_move = ""
+	var body = {"type": "playRequest", "state": get_game_state()}
+	var json_body = JSON.stringify(body)
+	ws.send_text(json_body)
 
-func _on_mouse_entered(node_name):
-	if not dragging and current_turn == "Player":
-		obj_selected = node_name
+func aiPlayRequest(data):
+	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
+	var rot = data["rotation"]
+	movePiece(data["shape"], simpleToReal(pos), rot, 0.5)
+	wait(0.5)
+	var body = {"type": "playFeedback", "state": get_game_state()}
+	var json_body = JSON.stringify(body)
+	ws.send_text(json_body)
 
-func error(err, format):
-	$TextEdit2.text = ""
-	$TextEdit2.placeholder_text = "syntax error: incorrect" + err + format
-	
-func _on_finish_button_pressed():
-	for node in get_children():
-		node.hide()
-	get_node("Forms").show()
+func wait(seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
 
+func finishPlayRequest():
+	setPlayerTurn()
 
-func _on_help_button_pressed():
-	get_node("Controls").show()
-	
-# Converts a node's global coordinates into board coordinates
-func get_coordinates_of_vertice_with_board_offset(node_path : String) -> Vector2:
+#####  Relational agent #####
+#############################
+
+func getVerticePosition(node_path : String) -> Vector2:
 	var board_origin_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
 	var board_origin_y = get_node("Arena/ArenaBoard/VOrigin").global_position.y
-	return Vector2(get_node(node_path).global_position.x - board_origin_x, get_node(node_path).global_position.y - board_origin_y)
+	return realToSimple(Vector2(get_node(node_path).global_position.x - board_origin_x, get_node(node_path).global_position.y - board_origin_y))
 
-# Gets all of a figure vertice's board coordinates
-func get_figure_position_info(figure_name : String) -> Array:
-	var figure_state = [] # index 0 -> center vertice, 1-4 -> other vertices
-	figure_state.append(get_coordinates_of_vertice_with_board_offset(figure_name + "/VCenter"))
-	for i in range(1,5):
+func getShapePosition(figure_name: String) -> Dictionary:
+	var figure_state = {
+		"position": null,
+		"vertices": []
+	}
+
+	figure_state["position"] = getVerticePosition(figure_name + "/VCenter")
+
+	for i in range(1, 5):
 		if has_node(figure_name + "/V" + str(i)):
-			figure_state.append(get_coordinates_of_vertice_with_board_offset(figure_name + "/V" + str(i)))
+			figure_state["vertices"].append(getVerticePosition(figure_name + "/V" + str(i)))
+
 	return figure_state
-	
-func get_relative_coordinates(node_path: String) -> Vector2:
-	return Vector2(get_node(node_path).position.x, get_node(node_path).position.y) 
 
-# Gets all of a figure vertice's relative coordinates towards center of the figure
-func get_figure_relative_position_info(figure_name : String) -> Array:
-	var figure_relative_state = [] # Center vertice is left out since it always is 0,0
-	for i in range(1,5):
-		if has_node(figure_name + "/V" + str(i)):
-			figure_relative_state.append(get_relative_coordinates(figure_name + "/V" + str(i)))
-	return figure_relative_state
 	
 func get_game_state() -> Dictionary:	
 	var state = {"on_board" : [],"off_board" : []}
+	updateFigureLocation() # DEL
 
-	for figure_name in figures_info.keys():
-		if figure_name in figures_on_board:
-			state["on_board"].append({figure_name : {}})
-			#state["on_board"][-1][figure_name]["position"] = get_figure_position_info(figure_name)
-			state["on_board"][-1][figure_name]["rotation"] = get_node(figure_name).get_rotation_degrees()
-		elif figure_name in figures_outside_board:
-			state["off_board"].append({figure_name : {}})
-			#state["off_board"][-1][figure_name]["position"] = get_figure_relative_position_info(figure_name)
-			state["off_board"][-1][figure_name]["rotation"] = get_node(figure_name).get_rotation_degrees()
+	for shape in shapes:
+		if shapes[shape]["onBoard"]:
+			var rot = snapped(get_node(shape).get_rotation_degrees(), 0.01)
+			var pos = getShapePosition(shape)
+			var entry = { shape: { "position": pos, "rotation": rot } }
+			state["on_board"].append(entry)
+			
+		else:
+			var rot = snapped(get_node(shape).get_rotation_degrees(), 0.01)
+			var entry = { shape: { "rotation": rot } }
+			state["off_board"].append(entry)
 		
 	return state
 
+#####  Calculations #####
+#########################
+func getElapsedTime():
+	var currentTime = Time.get_datetime_dict_from_system()
+	var elapsed_seconds = (Time.get_unix_time_from_datetime_dict(currentTime) - Time.get_unix_time_from_datetime_dict(startTime))
+	return elapsed_seconds
 
-func get_game_state2(leftX: float, rightX: float, bottomY: float, topY: float) -> String:
-	var state = {"on_board": [], "off_board": []}
-	var figures = ["Red", "Green", "Yellow", "Brown", "Cream", "Blue", "Purple"]
+func realToSimple(coords: Vector2) -> Vector2:
+	var bottom_left_corner = $Arena/ArenaBoard/VBottomLeftCorner.global_position
+	var upper_right_corner = $Arena/ArenaBoard/VUpperRightCorner.global_position
 
-	var positions_rotations = []
-	var all_in_drawer = true
+	var scale_x = 100.0 / (upper_right_corner.x - bottom_left_corner.x)
+	var scale_y = 100.0 / (upper_right_corner.y - bottom_left_corner.y)
+	
+	var simple_x = (coords.x - bottom_left_corner.x) * scale_x
+	var simple_y = (coords.y - bottom_left_corner.y) * scale_y
+	
+	return Vector2(simple_x, simple_y)
 
-	for figure_name in figures:
-		var figure_node = get_node(figure_name)
-		var figure_position = figure_node.global_position
-		var figure_rotation = figure_node.rotation_degrees
+func simpleToReal(coords: Vector2) -> Vector2:
+	var bottom_left_corner = $Arena/ArenaBoard/VBottomLeftCorner.global_position
+	var upper_right_corner = $Arena/ArenaBoard/VUpperRightCorner.global_position
 
-		var relative_x = snapped(remap(float(figure_position.x), 550, 825, 0, 100), 0.01)
-		var relative_y = snapped(remap(float(figure_position.y), 110, 360, 0, 100), 0.01)
-		if relative_y <= 120: 
-			positions_rotations.append(
-				str(figure_name) + " is at " + str(relative_x) + " " + str(relative_y) + " with rotation " + str(figure_rotation)
-			)
-			all_in_drawer = false
-
-	if all_in_drawer:
-		return "all pieces are in the drawer."  
-
-	return ", ".join(positions_rotations) + ", all other pieces are in the drawer." + "\n\n"
+	var scale_x = (upper_right_corner.x - bottom_left_corner.x) / 100.0
+	var scale_y = (upper_right_corner.y - bottom_left_corner.y) / 100.0
+	
+	var real_x = bottom_left_corner.x + (coords.x * scale_x)
+	var real_y = bottom_left_corner.y + (coords.y * scale_y)
+	
+	return Vector2(real_x, real_y)
 
 
-# Helper function to extract a region from the viewport texture
+#####  Stats #####
+##################
+func registerPlayerChat():
+	chatSent += 1
+
+func registerAIChat():
+	chatReceived += 1
+
+#####  Actions  #####
+#####################
+func SetHasRequest(value):
+	hasRequest = value
+	
+func setPlayerTurn():
+	current_turn = "Player"
+	movedPiece = ""
+	SetHasRequest(false)
+
+func finishPlayerTurn():
+	if movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
+		current_turn = "AI"
+		thinking_asc = true
+		time_elapsed = 0.0
+		curr_think_state = 1
+		SetHasRequest(true)
+		ai_play()
+
+func _undo_play():
+	if movedPiece and not dragging and current_turn == "Player":
+		get_node(movedPiece).position = originalPos
+		get_node(movedPiece).rotation = originalRot
+		movedPiece = ""
+
+func movePiece(object_name: String, target_position: Vector2, target_rotation: float, duration: float):
+	print(target_position)
+	var obj = get_node(object_name) #Due to hierarchy on node tree
+	
+	if obj == null:
+		print("Object not found: ", object_name)
+		return
+
+	var tween = get_tree().create_tween()
+
+	tween.parallel().tween_property(obj, "position", target_position, duration)
+	tween.parallel().tween_property(obj, "rotation", target_rotation, duration)
+		
+	tween.play()
+	await tween.finished
+	tween = get_child(get_child_count() - 1)
+	if tween is Tween:
+		tween.queue_free()
+
+#####  Picture extraction #####
+###############################
 func extract_region_from_viewport(pos_x: int, pos_y: int, width: int, height: int) -> Image:
 	var image = get_viewport().get_texture().get_image()
 	
@@ -315,41 +342,12 @@ func extract_region_from_viewport(pos_x: int, pos_y: int, width: int, height: in
 	var final_region = Rect2(pos_x * multW, pos_y * multH, width * multW, height * multH)
 	return image.get_region(final_region)
 
-# Function to get the board screen
 func get_board_screen() -> Image:
 	return extract_region_from_viewport(880, 115, 562, 540)
 
-# Function to get the piece drawer screen
 func get_piece_drawer_screen() -> Image:
 	return extract_region_from_viewport(1600, 425, 210, 210)
 	
-
-func _on_data_set_entry_button_pressed():
-	get_data_set_entry()
-
-# This needs the Training Data folder and the task folders to already exist
-# These can be downloaded for local use from the onedrive link provided in github
-func get_data_set_entry():
-	
-	var entry_index = DirAccess.get_directories_at("./TrainingData/Task" + str(game_task)).size() + 1
-	var entry_path = "./TrainingData/Task" + str(game_task) + "/Entry" + str(entry_index)# + '/'
-	if !DirAccess.dir_exists_absolute(entry_path):
-		DirAccess.make_dir_absolute(entry_path)
-	entry_path = entry_path + '/'
-	
-	var board_image = get_board_screen()
-	board_image.save_png(entry_path + "board.png")
-	
-	#var drawer_image = get_left_pieces_screen()
-	#drawer_image.save_png(entry_path + "drawer.png")
-	
-	var game_state_str = get_game_state()
-	game_state_str = JSON.stringify(game_state_str, "\t")
-	
-	var game_state_file = FileAccess.open(entry_path + "game_state.txt", FileAccess.WRITE)
-	game_state_file.store_string(game_state_str)
-	game_state_file.close()
-
 func saveStatistics(formData):
 
 	var file = FileAccess.open("Stats.txt", FileAccess.WRITE_READ) #WRITE_READ creates the file when it doesn't exist (which READ_WRITE does not do)
@@ -376,9 +374,19 @@ func saveStatistics(formData):
 
 	print("Data saved!")
 
-
+#####  Input Handling  #####
+############################
 func _on_Debug_button_pressed():
 	debugMode = !debugMode
 
-func isDebug():
-	return debugMode
+func _on_finish_button_pressed():
+	for node in get_children():
+		node.hide()
+	get_node("Forms").show()
+
+func _on_help_button_pressed():
+	get_node("Controls").show()
+
+func _on_mouse_entered(node_name):
+	if not dragging and current_turn == "Player":
+		obj_selected = node_name
