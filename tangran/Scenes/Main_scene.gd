@@ -60,6 +60,8 @@ func _ready():
 	startTime = Time.get_datetime_dict_from_system()
 	ws.connect_to_url(websocket_url) 
 
+#### GameLogic ####
+####################
 func _process(_delta):
 	time_elapsed += _delta
 	ws.poll()
@@ -81,10 +83,10 @@ func _process(_delta):
 						if message_type == "play":
 							aiPlayRequest(data)
 
-						if message_type == "finish":
+						elif message_type == "finish":
 							finishPlayRequest()
 
-						if message_type == "chat":
+						elif message_type == "chat":
 							$"Arena/ChatBox/AI_Chat".add_message(data["message"], true)
 							registerAIChat()
 
@@ -189,26 +191,41 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 			else:
 				get_node(obj_selected).rotation += PI/4
 
+#### Communication ####
+########################
+func makeJson(type="playRequest", message=""):
+	var board_buffer = get_board_screen().save_png_to_buffer()
+	var board64 = Marshalls.raw_to_base64(board_buffer)
+	var drawer_buffer = get_piece_drawer_screen().save_png_to_buffer()
+	var drawer64 = Marshalls.raw_to_base64(drawer_buffer)
+
+	var body = {
+		"type": "playRequest", 
+		"objective": game_task, 
+		"state": get_game_state(), 
+		"board_img": board64,
+		"drawer_img": drawer64,
+		"timestamp": getElapsedTime()
+	}
+	if type == "chat":
+		body["message"] = message
+
+	return JSON.stringify(body)
+
 func ai_play():
 	obj_selected = ""
-	var body = {"type": "playRequest", "state": get_game_state()}
-	var json_body = JSON.stringify(body)
-	ws.send_text(json_body)
+	ws.send_text(makeJson("playRequest"))
 
 func sendChatMsg(message):
 	registerPlayerChat()
-	var body = {"type": "chat", "message": message}
-	var json_body = JSON.stringify(body)
-	ws.send_text(json_body)
+	ws.send_text(makeJson("chat", message))
 
 func aiPlayRequest(data):
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
 	movePiece(data["shape"], simpleToReal(pos), rot, 0.5)
 	wait(0.5)
-	var body = {"type": "playFeedback", "state": get_game_state()}
-	var json_body = JSON.stringify(body)
-	ws.send_text(json_body)
+	ws.send_text(makeJson("playFeedback"))
 
 func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
@@ -217,7 +234,7 @@ func finishPlayRequest():
 	setPlayerTurn()
 
 #####  Game State #####
-#############################
+#######################
 func updateFigureLocation():
 	for shape in shapes:
 		shapes[shape]["onBoard"] = false

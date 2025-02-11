@@ -210,10 +210,10 @@ vertical_alignment = 1
 
 [node name="Debug Button" type="TextureButton" parent="Arena"]
 modulate = Color(0.8, 1, 1, 1)
-offset_left = 1830.0
-offset_top = 186.0
-offset_right = 3099.0
-offset_bottom = 687.0
+offset_left = 2321.0
+offset_top = -198.0
+offset_right = 3590.0
+offset_bottom = 303.0
 scale = Vector2(0.1, 0.1)
 texture_normal = ExtResource("8_qapvr")
 stretch_mode = 4
@@ -279,10 +279,10 @@ scale = Vector2(189448, 100001)
 texture = ExtResource("13_m8lrg")
 
 [node name="Thinking1" type="Sprite2D" parent="Arena/AITurn"]
-visible = false
 position = Vector2(151.48, -112.181)
 scale = Vector2(0.45678, 0.494368)
 texture = ExtResource("13_m8lrg")
+region_rect = Rect2(0, 0, 36, 41)
 
 [node name="Thinking2" type="Sprite2D" parent="Arena/AITurn"]
 visible = false
