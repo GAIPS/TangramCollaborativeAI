@@ -2,12 +2,12 @@ import asyncio
 import websockets
 import signal
 import sys
-from flask import Flask, request, jsonify
 import threading
 import time
 import os
 from openai import OpenAI
 from copy import deepcopy
+import json
 
 from perform_plays import last_dir, last_piece, calculate_pos, direction_vectors
 
@@ -17,7 +17,7 @@ max_tokens = 1024
 
 historyLimit = 20
 
-app = Flask(__name__)
+print(os.getenv("OPENAI_API_KEY"))
 
 client          = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
 
@@ -25,6 +25,8 @@ lastPlay = None
 
 figures_names = ["Purple","Brown","Cream","Red","Yellow","Green","Blue"]
 possible_directions = ["right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"]
+
+chatLog = []
 
 gameLogic = {
 "type": "text", "text":"""Reference Information about the game: 
@@ -63,8 +65,6 @@ Examples:
 - "I think the game already looks like our objective."
 """
 }
-
-chatLog = []
 
 async def send_GPT_play_request(objective : str, game_state : str, board_img, drawer_img):
 
@@ -138,7 +138,7 @@ async def send_GPT_play_request(objective : str, game_state : str, board_img, dr
 		]
 	})
 
-    response = await client.chat.completions.create(
+    response = client.chat.completions.create(
         model=model,
         messages= messages,
         temperature=0.7,
@@ -185,7 +185,7 @@ async def send_GPT_Move_Extraction_Request(play):
 		]
 	})
 	
-    response = await client.chat.completions.create(
+    response = client.chat.completions.create(
         model=model,
         messages= messages,
         temperature=temperature,
@@ -209,7 +209,7 @@ async def send_GPT_Reasoning_Extraction_Request(play):
 		]
 	})
     
-    response = await client.chat.completions.create(
+    response = client.chat.completions.create(
         model=model,
         messages= messages,
         temperature=temperature,
@@ -238,7 +238,7 @@ async def start_play(data):
     reasoning, move = asyncio.gather(reasoning_req, move_req)
 
 
-    return jsonify({"reasoning": reasoning, "move": calculate_pos(move)})
+    return {"reasoning": reasoning, "move": calculate_pos(move)}
 
 async def continue_play(data):
 
@@ -251,7 +251,7 @@ async def continue_play(data):
                game_state_dict["on_board"][last_piece]["position"]["VCenter"]["y_pos"] + direction_vectors[last_dir][1])
         move = (last_piece, pos, game_state_dict["on_board"][last_piece]["rotation"])
     
-    return jsonify({"move": move})
+    return {"move": move}
 
 async def send_GPT_message_query(objective : str, game_state : str, user_msg : str, board_img, drawer_img):
 
@@ -279,7 +279,7 @@ async def send_GPT_message_query(objective : str, game_state : str, user_msg : s
 
     chatLog.append({"role": "user", "content": user_msg})
 	
-    response = await client.chat.completions.create(
+    response = client.chat.completions.create(
         model=model,
         messages= messages,
         temperature=temperature,
@@ -299,9 +299,9 @@ async def message_query(data):
     objective = data["objective"]
     user_msg = data["user_msg"]
 
-    ai_msg = send_GPT_message_query(objective, str(game_state_dict), user_msg, board_img, drawer_img)
+    ai_msg = await send_GPT_message_query(objective, str(game_state_dict), user_msg, board_img, drawer_img)
 
-    return jsonify({"ai_msg": ai_msg})
+    return {"ai_msg": ai_msg}
 
 def shutDown(signal, frame):
     print("\Shutting down the server...")
@@ -322,13 +322,14 @@ async def handle_connection(websocket):
     }
 
     async for message in websocket:
+        message = json.loads(message)
         if(message["type"] not in eventHandlers):
             response = "ERROR: Unknown request type"
         
         else:
-            response = eventHandlers[message["type"]](message)
+            response = await eventHandlers[message["type"]](message)
 
-        await websocket.send(response)
+        await websocket.send(json.dumps(response))
         print(f"Sent to client: {response}")
 
 async def start_server():
