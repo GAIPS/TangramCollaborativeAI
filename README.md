@@ -13,9 +13,9 @@ The agents are powered by GPT4o and each perform individual tasks:
 Below is a video showcasing a normal game interaction:
 [![Video showcasing platform interaction with the objective being the construct a human using tangram pieces](https://cdn-cf-east.streamable.com/image/daqlcb.jpg?Expires=1730069848460&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=Nd60v6~XwzHorozDT0GRwM6wrxfaWcGnerdxlYUxzDITM-bKcUI23qZjNqZpFdomumjVyt72JCL0tmlem6PPQREm-Y0apVoOS0rp1FidTGpZdZxT3tDhISUrcwOKxOxYLxIIIPd4otaOBdHWAXCax58GIjABem9bxU-1Jdjdbg4bpvcmDJzz948l6Ahh2k2RK3PVykvw3Ww15t5wxMD3t033ckPje2WR3Dse7UOAI2lC9docWYwdFVtPVoy5UV1HFyA~jtIlRPEME69pcgNRaVWqDa8HGuVzU2MQybQM0L~tA2HWOd1VsCpwU61mKRY9p3f8hV2kj8WqxpAnGkVKDQ__)](https://streamable.com/daqlcb)
 
-### Developer API
+# Developer API
 
-# Python Server - Godot Game Message Exchange Documentation
+## Python Server - Godot Game Message Exchange Documentation
 
 All exchanged messages will be in JSON format.
 Currently, only 2 types of JSON messages are expected, each in its own socket channel:
@@ -26,20 +26,23 @@ Currently, only 2 types of JSON messages are expected, each in its own socket ch
 ## Game to Server
 
 ### G->S Playing
+Any Server Agent should be capable of:
+ - Responding to "playRequest" and subsequent "playFeedback" requests, by replying with a "play" or "finish" response, the server must send a "finish" when satisfied with the latest "playFeedback"
+ - Responding to "chatRequest" requests with a "chat" response
 
-| Field       | Type   | Description |
+| &emsp;&emsp; Field  &emsp;&emsp;     | Type   | Description |
 |------------|--------|-------------|
-| `type`     | string | "playRequest" or "playFeedback"|
+| `type`     | string | "playRequest" for the original or "playFeedback" for adjustments|
 | `objective`     | string          | Objective of the current game |
 | `state` | object         | Contains game state info |
 | &emsp; `on_board`    | object          | Info on pieces on the board |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info |
+| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
 | &emsp;&emsp;&emsp; `position` | Vector Array         | (X, Y) coordinates of the center |
 | &emsp;&emsp;&emsp; `vertices` | Array of Vector Array       | (X, Y) coordinates of the each vertice |
 | &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
 | &emsp;&emsp;&emsp; `collisions` | Array of Strings        | Names of pieces currently colliding with `{PIECE}` or `BOUNDARY`, if out of bounds |
 | &emsp;`off_board`   | object          |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info |
+| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green")|
 | &emsp;&emsp;&emsp; `vertices` | object       | X,Y coordinates of vertice in relation to center (0,0) |
 | &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
 | `board_img`     | base64 image    | Image of the current board |
@@ -48,11 +51,24 @@ Currently, only 2 types of JSON messages are expected, each in its own socket ch
 
 ### G->S Chatting
 
-| Field       | Type   | Description |
+| &emsp;&emsp; Field &emsp;&emsp;     | Type   | Description |
 |------------|--------|-------------|
 | `type`     | string | "chatRequest"|
 | `objective`     | string          | Objective of the current game |
-| `message` | string | |
+| `message` | string | Chat message sent by the player |
+| `state` | object         | Contains game state info |
+| &emsp; `on_board`    | object          | Info on pieces on the board |
+| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
+| &emsp;&emsp;&emsp; `position` | Vector Array         | (X, Y) coordinates of the center |
+| &emsp;&emsp;&emsp; `vertices` | Array of Vector Array       | (X, Y) coordinates of the each vertice |
+| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
+| &emsp;&emsp;&emsp; `collisions` | Array of Strings        | Names of pieces currently colliding with `{PIECE}` or `BOUNDARY`, if out of bounds |
+| &emsp;`off_board`   | object          |
+| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
+| &emsp;&emsp;&emsp; `vertices` | object       | X,Y coordinates of vertice in relation to center (0,0) |
+| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
+| `board_img`     | base64 image    | Image of the current board |
+| `drawer_img`    | base64 image    | Image of the piece drawer |
 | `timestamp`     | string          | |
 
 ## Server to game
@@ -63,8 +79,8 @@ Currently, only 2 types of JSON messages are expected, each in its own socket ch
 |------------|--------|-------------|
 | `type`     | string | "play"|
 | `shape`    | string | "Red", "Cream", ... |
-| `position` | Array Float | (X,Y) |
-| `rotation` | Float | |
+| `position` | Array Float | (X, Y) coordinates to move the shape (center coordinates) |
+| `rotation` | Float | Rotation in degrees |
 | `timestamp`     | string          ||
 
 ### S->G Chatting
@@ -72,5 +88,5 @@ Currently, only 2 types of JSON messages are expected, each in its own socket ch
 | Field       | Type   | Description |
 |------------|--------|-------------|
 | `type`     | string | "chat"|
-| `message`  | string | |
+| `message`  | string | Reply message to show to the player|
 | `timestamp`     | string          ||
