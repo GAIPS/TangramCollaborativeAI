@@ -195,20 +195,24 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 ########################
 func makeJson(type="playRequest", message=""):
 	var board_buffer = get_board_screen().save_png_to_buffer()
-	var board64 = Marshalls.raw_to_base64(board_buffer)
 	var drawer_buffer = get_piece_drawer_screen().save_png_to_buffer()
+
+	board_buffer.resize(500)
+	drawer_buffer.resize(500)
+	
+	var board64 = Marshalls.raw_to_base64(board_buffer)
 	var drawer64 = Marshalls.raw_to_base64(drawer_buffer)
 
 	var body = {
-		"type": "playRequest", 
 		"objective": game_task, 
 		"state": get_game_state(), 
 		"board_img": board64,
 		"drawer_img": drawer64,
 		"timestamp": getElapsedTime()
 	}
-	if type == "chat":
+	if type == "chatRequest":
 		body["message"] = message
+	body["type"] = type
 
 	return JSON.stringify(body)
 
@@ -218,7 +222,7 @@ func ai_play():
 
 func sendChatMsg(message):
 	registerPlayerChat()
-	ws.send_text(makeJson("chat", message))
+	ws.send_text(makeJson("chatRequest", message))
 
 func aiPlayRequest(data):
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100

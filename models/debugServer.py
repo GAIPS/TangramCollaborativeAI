@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import json
+import signal
 
 async def handle_connection(websocket):
     print("Client connected")
@@ -21,7 +22,7 @@ async def handle_connection(websocket):
                     response = {
                         "type": "finish",
                     }
-                elif data.get("type") == "chat":
+                elif data.get("type") == "chatRequest":
                     response = {
                         "type": "chat", 
                         "message": "bla bla bla"
@@ -38,5 +39,13 @@ async def start_server():
     async with websockets.serve(handle_connection, "localhost", 5000):
         print("WebSocket server started on ws://localhost:5000")
         await asyncio.Future()
+
+def shutDown(signal, frame):
+    print("\Shutting down the server...")
+    sys.exit(0)
+
+# Register the signal handler for SIGINT (Ctrl-C) and SIGTERM (termination)
+signal.signal(signal.SIGINT, shutDown)
+signal.signal(signal.SIGTERM, shutDown)
 
 asyncio.run(start_server())

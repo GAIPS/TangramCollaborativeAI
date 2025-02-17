@@ -226,7 +226,7 @@ async def start_play(data):
     board_img = data["board_img"]
     drawer_img = data["drawer_img"]
     
-    game_state_dict = data["game_state_dict"]
+    game_state_dict = data["state"]
 
     objective = data["objective"]
 
@@ -237,18 +237,17 @@ async def start_play(data):
 
     reasoning, move = asyncio.gather(reasoning_req, move_req)
 
-
     return {"reasoning": reasoning, "move": calculate_pos(move)}
 
 async def continue_play(data):
 
-    game_state_dict = data["game_state_dict"]
+    game_state_dict = data["state"]
 
     if last_dir == None or last_piece == None or not game_state_dict["on_board"][last_piece]["conflist"]["is_in_conflict"]: # Not sure if boolean from godot is interpreted as boolean here
         move = "FINISH"
     else:
-        pos = (game_state_dict["on_board"][last_piece]["position"]["VCenter"]["x_pos"] + direction_vectors[last_dir][0], 
-               game_state_dict["on_board"][last_piece]["position"]["VCenter"]["y_pos"] + direction_vectors[last_dir][1])
+        pos = (game_state_dict["on_board"][last_piece]["position"][0] + direction_vectors[last_dir][0], 
+               game_state_dict["on_board"][last_piece]["position"][1] + direction_vectors[last_dir][1])
         move = (last_piece, pos, game_state_dict["on_board"][last_piece]["rotation"])
     
     return {"move": move}
@@ -294,14 +293,13 @@ async def message_query(data):
     board_img = data["board_img"]
     drawer_img = data["drawer_img"]
     
-    game_state_dict = data["game_state_dict"]
-
+    game_state_dict = data["state"]
     objective = data["objective"]
-    user_msg = data["user_msg"]
+    user_msg = data["message"]
 
     ai_msg = await send_GPT_message_query(objective, str(game_state_dict), user_msg, board_img, drawer_img)
 
-    return {"ai_msg": ai_msg}
+    return {"type": "chat", "message": ai_msg}
 
 def shutDown(signal, frame):
     print("\Shutting down the server...")
@@ -316,12 +314,13 @@ async def handle_connection(websocket):
     print("Client connected")
 
     eventHandlers = {
-        "start_play" : start_play,
-        "continue_play" : continue_play,
-        "message_query" : message_query
+        "playRequest" : start_play,
+        "playFeedback" : continue_play,
+        "chatRequest" : message_query
     }
 
     async for message in websocket:
+        print(f"Received from client: {message}")
         message = json.loads(message)
         if(message["type"] not in eventHandlers):
             response = "ERROR: Unknown request type"
