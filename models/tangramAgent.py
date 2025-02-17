@@ -10,6 +10,8 @@ class TangramAgent:
         self.angles = list(range(0, 361, 45))
         self.shapes = ["Red", "Green", "Blue", "Yellow", "Purple", "Cream", "Brown"]
         self.randomShape = random.choice(self.shapes)
+        signal.signal(signal.SIGINT, self.shutDown)
+        signal.signal(signal.SIGTERM, self.shutDown)
 
     async def playRequest(self, data):
         """
@@ -159,13 +161,9 @@ class TangramAgent:
             print(f"WebSocket server started on ws://{host}:{port}")
             await asyncio.Future()
 
-
-def shutDown(signal_num, frame):
-    print("Shutting down the server...")
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, shutDown)
-signal.signal(signal.SIGTERM, shutDown)
+    def shutDown(self, signal_num, frame):
+        print("Shutting down the server...")
+        sys.exit(0)
 
 async def main():
     agent = TangramAgent()
