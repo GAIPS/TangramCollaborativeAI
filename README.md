@@ -83,6 +83,13 @@ Any Server Agent should be capable of:
 | `rotation` | Float | Rotation in degrees |
 | `timestamp`     | string          ||
 
+### S->G Conclude Playing turn
+
+| Field       | Type   | Description |
+|------------|--------|-------------|
+| `type`     | string | "finish"|
+| `timestamp`     | string          ||
+
 ### S->G Chatting
 
 | Field       | Type   | Description |

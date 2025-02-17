@@ -1,4 +1,6 @@
 import asyncio
+import signal
+import sys
 from tangramAgent import TangramAgent
 
 class CustomAgent(TangramAgent):
@@ -22,6 +24,13 @@ class CustomAgent(TangramAgent):
         See Superclass TangramAgent or Api description for input/output formats.
         """
         return await super().chatRequest(data)
+
+def shutDown(signal_num, frame):
+    print("Shutting down the server...")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, shutDown)
+signal.signal(signal.SIGTERM, shutDown)
 
 async def main():
     agent = CustomAgent()
