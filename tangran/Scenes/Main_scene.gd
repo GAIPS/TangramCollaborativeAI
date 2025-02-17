@@ -45,6 +45,8 @@ var thinking_asc
 var curr_think_state
 const ANIM_THINK_TIME = 1
 
+var pendingFeedback = false
+
 #Websocket
 var request
 @export var websocket_url = "ws://localhost:5000"
@@ -128,7 +130,10 @@ func _process(_delta):
 			get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
 		thinkingAnimation()	
 		
-	updateFigureLocation() # Probably can be called less often
+	 # Probably can be called less often
+	if pendingFeedback:
+		ws.send_text(makeJson("playFeedback"))
+		pendingFeedback = false
 
 func color(nodeName, b: bool):
 	if b:
@@ -225,11 +230,14 @@ func sendChatMsg(message):
 	ws.send_text(makeJson("chatRequest", message))
 
 func aiPlayRequest(data):
+	print(data)
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
-	movePiece(data["shape"], simpleToReal(pos), rot, 0.5)
-	wait(0.5)
+	await movePiece(data["shape"], simpleToReal(pos), deg_to_rad(rot), 0.5)
+	await updateFigureLocation()
+	await get_tree().process_frame 
 	ws.send_text(makeJson("playFeedback"))
+	#pendingFeedback = true
 
 func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
@@ -240,12 +248,14 @@ func finishPlayRequest():
 #####  Game State #####
 #######################
 func updateFigureLocation():
+	var updated = false
 	for shape in shapes:
 		shapes[shape]["onBoard"] = false
 		for figure in $Arena/ArenaBoard.get_overlapping_areas():
 			if figure.name == shape:
 				shapes[shape]["onBoard"] = true
 				break
+	
 
 func getVerticePosition(node_path : String) -> Vector2:
 	var board_origin_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
@@ -267,21 +277,25 @@ func getShapePosition(figure_name: String) -> Dictionary:
 	return figure_state
 
 func get_game_state() -> Dictionary:	
-	var state = {"on_board" : [],"off_board" : []}
+	print("Getting game state")
+	var state = {"on_board" : {},"off_board" : {}}
 	updateFigureLocation()
+	print(shapes)
 
 	for shape in shapes:
 		if shapes[shape]["onBoard"]:
 			var rot = snapped(get_node(shape).get_rotation_degrees(), 0.01)
 			var pos = getShapePosition(shape)
-			var entry = { shape: { "position": pos, "rotation": rot } }
-			state["on_board"].append(entry)
+			get_node(shape).updateOverlaps()
+			var collisions = get_node(shape).overlaps
+			var entry = {"position": pos, "rotation": rot, "collisions": collisions}
+			state["on_board"][shape] = entry
 			
 		else:
 			var rot = snapped(get_node(shape).get_rotation_degrees(), 0.01)
-			var entry = { shape: { "rotation": rot } }
-			state["off_board"].append(entry)
-		
+			var entry = {"rotation": rot}
+			state["off_board"][shape] = entry
+	print(state)
 	return state
 
 #####  Calculations #####

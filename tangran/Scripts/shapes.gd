@@ -2,6 +2,7 @@ extends Area2D
 
 var dragging = false
 var overlapping = false
+var overlaps = []
 
 func _process(_delta):
 	
@@ -11,14 +12,21 @@ func _process(_delta):
 		print("Is this piece colliding with Board? Yes")
 	'''
 		
-	overlapping = get_overlapping()
-	if overlapping:
+	if get_overlapping():
 		modulate = "#ff291784"
 	else:
 		modulate = "#ffffff"
 
 	if dragging:
 		global_position = get_global_mouse_position()
+
+func updateOverlaps():
+	overlaps = []
+	for area in get_overlapping_areas():
+		if area == get_node("../Arena/ArenaBoard") || area == get_node("../Arena/ArenaPieceDrawer"):
+			continue
+		else:
+			overlaps.append(area.name)
 
 func start_drag():
 	z_index = 2
@@ -27,8 +35,7 @@ func start_drag():
 func end_drag():
 	z_index = 0
 	dragging = false
-
-
+	
 func get_overlapping():
 	var overlapping_areas = get_overlapping_areas()
 	var num_overlaps = overlapping_areas.size()
@@ -37,10 +44,6 @@ func get_overlapping():
 	for area in overlapping_areas:
 		if area == get_node("../Arena/ArenaBoard") || area ==  get_node("../Arena/ArenaPieceDrawer") || area.name.is_valid_int():
 			num_overlaps = num_overlaps - 1
-
-	#DEBUG
-	#print(num_overlaps)
-	#print(overlapping_areas)
 	
 	if num_overlaps != 0:
 		return true
