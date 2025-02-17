@@ -136,7 +136,6 @@ def find_intersection(p1, d1, p2, d2):
         return (p1[0] + d1[0] * t, p1[1] + d1[1] * t)  # Calculate the intersection point
     return None
 
-
 def find_common_intersection(points, directions):
     # Check if there are fewer than 2 points (not enough lines to find an intersection)
     if len(points) < 2:
@@ -163,7 +162,6 @@ def find_common_intersection(points, directions):
     # Return the final intersection point
     return intersection
 
-
 def findCoordinatesMoreThanOneRelated(game_state, pieceToMove, direction_and_related_piece):
     # Get the current piece coordinates
     current_piece_coordinates = (game_state["on_board"][pieceToMove]["position"]["VCenter"]["x_pos"], game_state["on_board"][pieceToMove]["position"]["VCenter"]["y_pos"])
@@ -187,8 +185,6 @@ def findCoordinatesMoreThanOneRelated(game_state, pieceToMove, direction_and_rel
         return current_piece_coordinates
     else:
         return final_coordinate
-
-
 
 def relational_pos(game_state, move : str):
     global last_piece, last_dir
@@ -266,8 +262,6 @@ def relational_pos(game_state, move : str):
 
         return(pieceToMove, piecePostMoveCoordinates, rotationDegrees)
         
-
-
 def calculate_pos(move : str, game_state):
     global last_dir, last_piece
     last_piece = None

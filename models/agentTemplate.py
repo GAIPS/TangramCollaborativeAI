@@ -2,6 +2,9 @@ import asyncio
 from tangramAgent import TangramAgent
 
 class CustomAgent(TangramAgent):
+    def __init__(self):
+        super().__init__()
+        
     async def playRequest(self, data):
         """
         Function to handle a new play request from the game. Modify this function to implement your own agent.
