@@ -11,7 +11,13 @@ var messages = []
 var headers =  ["Content-type: application/json", "Authorization: Bearer " + api_key]
 var data
 var request 
-var url = "https://api.openai.com/v1/chat/completions"
+func get_base_url() -> String:
+	var result = JavaScriptBridge.eval("window.location.origin")
+	print("Base URL is " + result )
+	return result
+
+var base_url = get_base_url()
+var url = base_url + "/api/v1/task/completions"
 
 const figures_names = ["Purple","Brown","Cream","Red","Yellow","Green","Blue"]
 const possible_directions = ["right", "left", "top", "bottom", "top-right", "top-left", "bottom-right", "bottom-left"]
@@ -53,7 +59,7 @@ func _on_request_completed(_result, _response_code, _headers, body):
 		#TODO: ADD MESSAGE TO CHAT HISTORY
 		
 	else:
-		message = response["choices"][0].message.content
+		message = response.text
 		
 		if last_request == "GPT Play Extensive":
 			print("GPT Play Extensive sent and received sucessfully")
@@ -86,7 +92,6 @@ func _on_request_completed(_result, _response_code, _headers, body):
 			print("\n\n\n")
 			print(current_play["move"])
 			print("\n\n\n")
-
 			if current_play["move"].begins_with("Square"):
 				var move_data = current_play["move"].split(" ")
 				await playSquare(move_data[1], move_data[2])
@@ -180,55 +185,56 @@ func send_GPT_Play_Request(board_image_64, piece_drawer_image_64 ,game_state_str
 	messageLog = get_node("../ChatBox/AI_Chat").getUpdatedLog()
 	messages = messageLog.slice(messageLog.size() - historyLimit, messageLog.size()).duplicate(true)
 
-	messages.append({
-		"role": "system",
-		"content": [
-			gameLogic,
-			{"type": "text", "text":"You are an AI-Player helping the Human Player arrange Tangram Pieces in a board in order to create " + objective + ". 
-		A move involves moving one of the tangram pieces on the board or placing a piece on the board from the piece drawer. 
-
-		NEVER use a piece in the drawer as a reference in any of the following
-		
-		You will receive the current game state in an image format, an image showing the state of the piece drawer, 
-		a dictionary specifying the current rotation value of each piece, the full chat history between you (you're the AI) and the player 
-		and an history of all played moves, by the player and the AI.  
-
-		After analysing the given image of the state you should suggest your moves in one of the following ways:
-		
-		You can describe a relative position, done in relation to pieces already placed on the board by indicating which side 
-		(right, left, top, bottom, top-right, top-left, bottom-right, bottom-left) of them the piece to be moved should be placed. 
-		A move can be done in relation to a reference piece or more.
-		You can rotate a piece rotate in a move, always try to describe move rotation in terms of explicit degrees to add, 
-		avoid using phrases which require deducting or interpreting the rotation values.
-		Example: Place Red to the left of Cream with a 90º rotation.
-		This is your main way to play, you should only use the next ones if they match exactly what you consider the best move.
-		
-		You can suggest to make a Square/diamond shape using a pair of triangles. By moving one of them to next to one already on the board.
-		The triangle pair must consist of Cream and Red OR Green and Yellow, since these match in size.
-		Whenever suggesting a square creation move, you need to say \"Form a Square\" and then the triangle that needs to be placed followed by the referenced triangle.
-		Example: Form a Square by putting Cream next to Red (note, here red the one that MUST be already on the board, we would be moving cream, you can make this more clear in your replies)
-		
-		You can suggest to make a larger Triangle by using a pair of smaller triangles. One of them must already be on the board for the move to be valid.
-		Since this move leads to two possible positions and may be applied on different orientations, you must indicate if the triangle is placed clockwise or anticlockwise from the reference triangle.
-		The triangle pair must also consist of Cream and Red OR Green and Yellow.
-		Whenever suggesting a triangle creation move, you need to say \"Form a Triangle by placing\" and then the triangle piece name to be placed, followed by clockwise or anticlockwise, and then the reference triangle piece name.
-		Example: Form a Triangle by placing Cream anticlockwise from Red
-
-		You can simply rotate a piece without moving it, \"Just rotate\" and then the piece and the rotation you intend for it to have.
-		Example: Just rotate Blue 90
-
-		If and only if you believe the objective has already been achieved, that is if you think it looks close enough to the objective then say \"Looks finished\" followed by a small friendly message to the human player.
-		Example: Looks finished: I think this already resembles our objective well. Do you agree?
-		
-		KEEP IN MIND THE PLAY YOU SHOULD MAKE THE MOST IS THE RELATIVE MOVE
-		
-		You should always follow the commands and reasoning in the chat history behind the user and the AI. 
-		ALWAYS check and respect if you promised something in a recent previous message that wasnt been done yet.
-		User commands prevail above AI commands, in case they conflict, as well as newest messages above older ones. 
-		Following the chat instructions and considering the state of the game, 
-		list all moves that should be done in order to create " + objective + ", providing explanations for each one."
-		}]
-	})
+	# Moved to backend
+	#messages.append({
+		#"role": "system",
+		#"content": [
+			#gameLogic,
+			#{"type": "text", "text":"You are an AI-Player helping the Human Player arrange Tangram Pieces in a board in order to create " + objective + ". 
+		#A move involves moving one of the tangram pieces on the board or placing a piece on the board from the piece drawer. 
+#
+		#NEVER use a piece in the drawer as a reference in any of the following
+		#
+		#You will receive the current game state in an image format, an image showing the state of the piece drawer, 
+		#a dictionary specifying the current rotation value of each piece, the full chat history between you (you're the AI) and the player 
+		#and an history of all played moves, by the player and the AI.  
+#
+		#After analysing the given image of the state you should suggest your moves in one of the following ways:
+		#
+		#You can describe a relative position, done in relation to pieces already placed on the board by indicating which side 
+		#(right, left, top, bottom, top-right, top-left, bottom-right, bottom-left) of them the piece to be moved should be placed. 
+		#A move can be done in relation to a reference piece or more.
+		#You can rotate a piece rotate in a move, always try to describe move rotation in terms of explicit degrees to add, 
+		#avoid using phrases which require deducting or interpreting the rotation values.
+		#Example: Place Red to the left of Cream with a 90º rotation.
+		#This is your main way to play, you should only use the next ones if they match exactly what you consider the best move.
+		#
+		#You can suggest to make a Square/diamond shape using a pair of triangles. By moving one of them to next to one already on the board.
+		#The triangle pair must consist of Cream and Red OR Green and Yellow, since these match in size.
+		#Whenever suggesting a square creation move, you need to say \"Form a Square\" and then the triangle that needs to be placed followed by the referenced triangle.
+		#Example: Form a Square by putting Cream next to Red (note, here red the one that MUST be already on the board, we would be moving cream, you can make this more clear in your replies)
+		#
+		#You can suggest to make a larger Triangle by using a pair of smaller triangles. One of them must already be on the board for the move to be valid.
+		#Since this move leads to two possible positions and may be applied on different orientations, you must indicate if the triangle is placed clockwise or anticlockwise from the reference triangle.
+		#The triangle pair must also consist of Cream and Red OR Green and Yellow.
+		#Whenever suggesting a triangle creation move, you need to say \"Form a Triangle by placing\" and then the triangle piece name to be placed, followed by clockwise or anticlockwise, and then the reference triangle piece name.
+		#Example: Form a Triangle by placing Cream anticlockwise from Red
+#
+		#You can simply rotate a piece without moving it, \"Just rotate\" and then the piece and the rotation you intend for it to have.
+		#Example: Just rotate Blue 90
+#
+		#If and only if you believe the objective has already been achieved, that is if you think it looks close enough to the objective then say \"Looks finished\" followed by a small friendly message to the human player.
+		#Example: Looks finished: I think this already resembles our objective well. Do you agree?
+		#
+		#KEEP IN MIND THE PLAY YOU SHOULD MAKE THE MOST IS THE RELATIVE MOVE
+		#
+		#You should always follow the commands and reasoning in the chat history behind the user and the AI. 
+		#ALWAYS check and respect if you promised something in a recent previous message that wasnt been done yet.
+		#User commands prevail above AI commands, in case they conflict, as well as newest messages above older ones. 
+		#Following the chat instructions and considering the state of the game, 
+		#list all moves that should be done in order to create " + objective + ", providing explanations for each one."
+		#}]
+	#})
 
 	#messages.append({"role": "system", "content": "Chat history, smallest index entries are the oldest:" + game_interaction_history_str + chat_history_str})
 	
@@ -249,12 +255,11 @@ func send_GPT_Play_Request(board_image_64, piece_drawer_image_64 ,game_state_str
 	})
 	
 	var body = JSON.stringify({
-			"messages": messages,
-			"temperature": temperature,
-			"max_tokens": max_tokens,
-			"model": model
+		"userMessages": messages,		
+		"inputData": { "target" : "ai_move"},
+		"objective": objective		
 	})
-	
+
 	var send_request = await send_request(url,headers,body)
 	if send_request != OK:
 		print("There was an error sending the HTTP request!")
@@ -264,33 +269,34 @@ func send_GPT_Play_Request(board_image_64, piece_drawer_image_64 ,game_state_str
 func send_GPT_Move_Extraction_Request(play):
 	var messages = []
 	
-	messages.append({
-		"role": "system",
-		"content": "
-		You are currently extracting the first move from a detailed play suggestion by the AI. 
-		You must convert that move into one of the following grammars formats: 
-			- [PieceToMove], [Direction], [PieceOnBoard], (Optional: [Direction], [PieceOnBoard], ...), [DegreesOfRotation], [FlipXAxis], [FlipYAxis]. 
-			Where any piece name is a valid name piece between the names " + str(figures_names) + ", any direction is one of the following " 
-			+ str(possible_directions) + ", any rotation degrees value must be 0,45,90,135,180,225,270,315 and any flip value is 0 or 1 (if not mentioned 0).
-			This format is the default one, except when special moves for triangle and square creation are suggested.
-			- Square [reference piece] [piece to move]
-			This format is only used when a suggested move says something along the lines of \"Form a Square with\" and then two triangle pieces names, note which one is being moved and which one is already in place.
-			- Triangle [reference piece] [direction] [piece to move]
-			Where direction is either clockwise or anticlockwise.
-			This format is only used when a suggested move says something along the lines of \"Form a triangle with\" and then two triangle pieces names and a direction, note which one is being moved and which one is already in place.
-			- Finish: [Message]
-			This format is only used when a suggested move says something along the lines of \"Looks finished\" or something of the type, message should be a friendly message to the human.
-			- Rotate [piece to rotate] [rotation]
-			This format is only used when a suggested move says something along the lines of \"Just rotate\" or something of the type, rotation should be the suggested one.
-					
-		For example (for each possible grammar): 
-		Cream, right, Red, 90, 0, 0. 
-		Square Cream Red
-		Triangle Cream clockwise Red
-		
-		You should ONLY RESPOND WITH THE MOVE IN ONE OF THE THREE GRAMMAR FORMATS. 
-		"
-	})
+	# Moved to backend
+	#messages.append({
+	#	"role": "system",
+	#	"content": "
+	#	You are currently extracting the first move from a detailed play suggestion by the AI. 
+	#	You must convert that move into one of the following grammars formats: 
+	#		- [PieceToMove], [Direction], [PieceOnBoard], (Optional: [Direction], [PieceOnBoard], ...), [DegreesOfRotation], [FlipXAxis], [FlipYAxis]. 
+	#		Where any piece name is a valid name piece between the names " + str(figures_names) + ", any direction is one of the following " 
+	#		+ str(possible_directions) + ", any rotation degrees value must be 0,45,90,135,180,225,270,315 and any flip value is 0 or 1 (if not mentioned 0).
+	#		This format is the default one, except when special moves for triangle and square creation are suggested.
+	#		- Square [reference piece] [piece to move]
+	#		This format is only used when a suggested move says something along the lines of \"Form a Square with\" and then two triangle pieces names, note which one is being moved and which one is already in place.
+	#		- Triangle [reference piece] [direction] [piece to move]
+	#		Where direction is either clockwise or anticlockwise.
+	#		This format is only used when a suggested move says something along the lines of \"Form a triangle with\" and then two triangle pieces names and a direction, note which one is being moved and which one is already in place.
+	#		- Finish: [Message]
+	#		This format is only used when a suggested move says something along the lines of \"Looks finished\" or something of the type, message should be a friendly message to the human.
+	#		- Rotate [piece to rotate] [rotation]
+	#		This format is only used when a suggested move says something along the lines of \"Just rotate\" or something of the type, rotation should be the suggested one.
+	#				
+	#	For example (for each possible grammar): 
+	#	Cream, right, Red, 90, 0, 0. 
+	#	Square Cream Red
+	#	Triangle Cream clockwise Red
+	#	
+	#	You should ONLY RESPOND WITH THE MOVE IN ONE OF THE THREE GRAMMAR FORMATS. 
+	#	"
+	#})
 	
 	messages.append({
 		"role": "user",
@@ -300,10 +306,8 @@ func send_GPT_Move_Extraction_Request(play):
 	})
 	
 	var body = JSON.stringify({
-		"messages": messages,
-		"temperature": temperature,
-		"max_tokens": max_tokens,
-		"model": model
+		"userMessages": messages,		
+		"inputData": { "target" : "extract_move", "figures_names" : str(figures_names), "possible_directions" : str(possible_directions)}		
 	})
 
 	var send_request = await send_request(url,headers,body)
@@ -315,10 +319,10 @@ func send_GPT_Move_Extraction_Request(play):
 func send_GPT_Reasoning_Extraction_Request(play):
 	var messages = []
 	
-	messages.append({
-		"role": "system",
-		"content": "You are currently extracting ONLY the reasoning behind the first move from a list of suggested moves. No need for any text beside the reasoning in the response you'll provide."
-	})
+	#messages.append({
+	#	"role": "system",
+	#	"content": "You are currently extracting ONLY the reasoning behind the first move from a list of suggested moves. No need for any text beside the reasoning in the response you'll provide."
+	#})
 	
 	messages.append({
 		"role": "user",
@@ -326,13 +330,10 @@ func send_GPT_Reasoning_Extraction_Request(play):
 			{ "type": "text", "text" : "What is the reasoning behind the first suggested step of the following list?" + play}
 		]
 	})
-	
 	var body = JSON.stringify({
-		"messages": messages,
-		"temperature": temperature,
-		"max_tokens": max_tokens,
-		"model": model
-	})
+		"userMessages": messages,		
+		"inputData": { "target" : "get_reasoning"}
+	})	
 
 	var send_request = await send_request(url,headers,body)
 	if send_request != OK:
@@ -665,14 +666,3 @@ func playRotate(piece: String, rot: String):
 func playFinish(msg : String):
 	$"../ChatBox/AI_Chat".add_message("AI Player: " + msg, true, false)
 	return
-
-var gameLogic = {
-"type": "text", "text":"""Reference Information about the game: 
-You and the human user are playing a tangram game, arranging the pieces to form an objective shape. 
-The pieces are named by their colors: Red, Purple, Yellow, Green, Blue, Cream, and Brown.
-Red and Cream are two large triangles, Yellow and green are two small triangles, Blue is a medium triangle, Purple is a small square, Brown is a tilted parallelogram.
-We consider 0 degrees of rotation the triangles with their hypotenuse facing down, and the square in the square position (so the diamond shape corresponds to 45 degrees of rotation)
-Example logical plays: Matching shapes can allow new larger shapes to appear, uniting two triangles of the same size by their Hypotenuse creates a square of that size in the location or a diamond (can be used as a circle) shape if the triangles are angled by 45 degrees. The Purple Square or a square created of 2 triangles can serve to form many things like heads, bodies, bases of structures. two triangles can also form a larger triangle when combined by their cathetus green and yellow can usually be used together or to fill similar objectives this could be used to make a another medium sized triangle like blue if used with yellow and green.
-It often makes sense to use pieces of the same shape to furfil similar objectives, for example if theres 2 arms, it makes sense to use similar pieces for each.
-"""
-}

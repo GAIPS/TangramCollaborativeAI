@@ -13,7 +13,13 @@ enum modes {
 var api_key = ""
 var max_tokens = 1024
 var temperature = 0.5
-var url = "https://api.openai.com/v1/chat/completions"
+func get_base_url() -> String:
+	var result = JavaScriptBridge.eval("window.location.origin")
+	print("Base URL is " + result )
+	return result
+
+var base_url = get_base_url()
+var url = base_url + "/api/v1/task/completions"
 var headers = ["Content-Type: application/json", "Authorization: Bearer " + api_key]
 var engine = "gpt-3.5-turbo"
 var chat_dock
@@ -164,11 +170,11 @@ func _on_request_completed(result, responseCode, headers, body):
 		printt("Response is not a Dictionary", headers)
 		return
 	
-	var newStr = response.choices[0].message.content
+	var newStr = response.text
 	if current_mode == modes.Chat:
 		add_to_chat("GPT: " + newStr)
 	elif current_mode == modes.Summarise:
-		var str = response.choices[0].message.content.replace("\n" , "")
+		var str = response.text.replace("\n" , "")
 		newStr = "# "
 		var lineLength = 50
 		var currentLineLength = 0
@@ -183,7 +189,7 @@ func _on_request_completed(result, responseCode, headers, body):
 	elif current_mode == modes.Action:
 		code_editor.insert_line_at(cursor_pos, newStr)
 	elif current_mode == modes.Help:
-		add_to_chat("GPT: " + response.choices[0].text)
+		add_to_chat("GPT: " + response.text)
 	pass
 	
 func get_selected_code():
@@ -243,5 +249,3 @@ func load_settings():
 	max_tokens = int(data["max_tokens"])
 	temperature = float(data["temperature"])
 	engine = data["engine"]
-
-
