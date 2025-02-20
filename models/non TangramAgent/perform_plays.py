@@ -78,8 +78,8 @@ def find_starting_coordinate_from_parallel_directions(game_state, common_directi
     
     # Iterate over each piece in the dictionary
     for piece in direction_and_related_piece.keys():
-        coordinates_x.append(game_state["on_board"][piece]["position"]["VCenter"]["x_pos"])
-        coordinates_y.append(game_state["on_board"][piece]["position"]["VCenter"]["y_pos"])
+        coordinates_x.append(float(game_state["on_board"][piece]["position"]["VCenter"]["x_pos"]))
+        coordinates_y.append(float(game_state["on_board"][piece]["position"]["VCenter"]["y_pos"]))
     
     # Get the highest and lowest coordinates in x and y
     highest_x = max(coordinates_x)
@@ -174,7 +174,7 @@ def findCoordinatesMoreThanOneRelated(game_state, pieceToMove, direction_and_rel
         # Get the direction vector using the direction (assuming direction_vectors is defined elsewhere)
         directions.append(direction_vectors[direction])
         
-        related_pieces_coordinates.append((game_state["on_board"][piece]["position"]["VCenter"]["x_pos"], game_state["on_board"][piece]["position"]["VCenter"]["y_pos"]))
+        related_pieces_coordinates.append((float(game_state["on_board"][piece]["position"]["VCenter"]["x_pos"]), float(game_state["on_board"][piece]["position"]["VCenter"]["y_pos"])))
     
     # Find the common intersection of the coordinates and directions
     final_coordinate = find_common_intersection(related_pieces_coordinates, directions)
@@ -189,17 +189,17 @@ def findCoordinatesMoreThanOneRelated(game_state, pieceToMove, direction_and_rel
 def relational_pos(game_state, move : str):
     global last_piece, last_dir
     GPTPlay_parts = move.rsplit(", ")
-    num_directionPiece_pairs = ((GPTPlay_parts.size() - 4) / 2) + 1 # 4 fields are mandatory to be filled. 1 pair always exists for the mandatory direction-piece pair
+    num_directionPiece_pairs = ((len(GPTPlay_parts) - 6) / 2) + 1 # 4 fields are mandatory to be filled. 1 pair always exists for the mandatory direction-piece pair
     pieceToMove = GPTPlay_parts[0]
 	
     if pieceToMove not in figures_names:
-        print("Invalid Suggested Move: pieceToMove Name invalid " + pieceToMove)
-        return "ERROR"
+       print("Invalid Suggested Move: pieceToMove Name invalid " + pieceToMove)
+       return "ERROR"
 	
 	# There is an edge case where multiple pieces have the same vector direction, we must find a common starting coordinate and apply the vector
     is_all_same_direction = True
     first_direction = GPTPlay_parts[1]
-	
+
     play_iterator = 1
     direction_and_related_piece = {}
     while num_directionPiece_pairs != 0:
@@ -223,7 +223,7 @@ def relational_pos(game_state, move : str):
 	
 	# TODO: for some reason whe it rotates already rotated pieces, it rotates into invalid positions
 	# FIX: limit rotationDegrees to be only legal values by aproximating into closest rotation
-    rotationDegrees = (GPTPlay_parts[play_iterator]) + game_state["on_board"][pieceToMove]["rotation"]
+    rotationDegrees = (int(GPTPlay_parts[play_iterator])) + game_state["on_board"][pieceToMove]["rotation"]
     
 	
     piecePreMoveCoordinates = (game_state["on_board"][pieceToMove]["position"]["VCenter"]["x_pos"], game_state["on_board"][pieceToMove]["position"]["VCenter"]["y_pos"])
@@ -231,7 +231,7 @@ def relational_pos(game_state, move : str):
     piecePostMoveCoordinates = piecePreMoveCoordinates
 	
 	# CASE WHENEVER MORE THAN 1 REFERENCE PIECE IS USED, BUT ALL TOWARDS THE SAME DIRECTION
-    if direction_and_related_piece.keys().size() > 1 and is_all_same_direction:
+    if len(direction_and_related_piece.keys()) > 1 and is_all_same_direction:
         piecePostMoveCoordinates = find_starting_coordinate_from_parallel_directions(game_state, first_direction, direction_and_related_piece)
         last_dir = first_direction
         last_piece = pieceToMove
@@ -240,7 +240,7 @@ def relational_pos(game_state, move : str):
 		
 
 	# CASE WHENEVER MORE THAN 1 REFERENCE PIECE IS USED
-    elif direction_and_related_piece.keys().size() > 1:
+    elif len(direction_and_related_piece.keys()) > 1:
         piecePostMoveCoordinates = findCoordinatesMoreThanOneRelated(pieceToMove, direction_and_related_piece) 
 			
         if(piecePreMoveCoordinates == piecePostMoveCoordinates):
@@ -254,10 +254,10 @@ def relational_pos(game_state, move : str):
 			
 	#CASE WHENEVER ONLY 1 REFERENCE PIECE IS USED
     else:
-        direction = direction_vectors[direction_and_related_piece[direction_and_related_piece.keys()[0]]]
-        piecePostMoveCoordinates = (game_state["on_board"][direction_and_related_piece.keys()[0]]["position"]["VCenter"]["x_pos"], game_state["on_board"][direction_and_related_piece.keys()[0]]["position"]["VCenter"]["y_pos"])
+        direction = direction_vectors[list(direction_and_related_piece.values())[0]]
+        piecePostMoveCoordinates = (game_state["on_board"][list(direction_and_related_piece.keys())[0]]["position"]["VCenter"]["x_pos"], game_state["on_board"][list(direction_and_related_piece.keys())[0]]["position"]["VCenter"]["y_pos"])
 
-        last_dir = direction_and_related_piece[direction_and_related_piece.keys()[0]]
+        last_dir = list(direction_and_related_piece.values())[0]
         last_piece = pieceToMove
 
         return(pieceToMove, piecePostMoveCoordinates, rotationDegrees)

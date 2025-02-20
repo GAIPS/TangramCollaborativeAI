@@ -9,7 +9,9 @@ from openai import OpenAI
 from copy import deepcopy
 import json
 
-from perform_plays import last_dir, last_piece, calculate_pos, direction_vectors
+from perform_plays import calculate_pos, direction_vectors
+
+import perform_plays
 
 model = "gpt-4o"
 temperature = 0.7
@@ -69,8 +71,6 @@ Examples:
 async def send_GPT_play_request(objective : str, game_state : str, board_img, drawer_img):
 
     messages = chatLog[max(0,len(chatLog) - historyLimit):]
-
-    messages.append()
 
     messages.append({
 		"role": "system",
@@ -223,34 +223,41 @@ async def send_GPT_Reasoning_Extraction_Request(play):
 
 async def start_play(data):
 
-    board_img = data["board_img"]
-    drawer_img = data["drawer_img"]
+	board_img = data["board_img"]
+	drawer_img = data["drawer_img"]
     
-    game_state_dict = data["state"]
+	game_state_dict = data["state"]
 
-    objective = data["objective"]
+	objective = data["objective"]
 
-    lastPlay = await send_GPT_play_request(objective, str(game_state_dict), board_img, drawer_img)
+	lastPlay = await send_GPT_play_request(objective, str(game_state_dict), board_img, drawer_img)
 
-    reasoning_req = send_GPT_Reasoning_Extraction_Request(lastPlay)
-    move_req = send_GPT_Move_Extraction_Request(lastPlay)
-
-    reasoning, move = asyncio.gather(reasoning_req, move_req)
-
-    return {"reasoning": reasoning, "move": calculate_pos(move)}
+	reasoning_req = send_GPT_Reasoning_Extraction_Request(lastPlay)
+	move_req = send_GPT_Move_Extraction_Request(lastPlay)
+	reasoning, move = await asyncio.gather(reasoning_req, move_req)
+     
+	#print(move)
+    
+	#move = "Blue, right, Cream, 0, 0, 0."
+    
+	return {"reasoning": reasoning, "move": calculate_pos(move, game_state_dict)}
 
 async def continue_play(data):
 
-    game_state_dict = data["state"]
-
-    if last_dir == None or last_piece == None or not game_state_dict["on_board"][last_piece]["conflist"]["is_in_conflict"]: # Not sure if boolean from godot is interpreted as boolean here
-        move = "FINISH"
-    else:
-        pos = (game_state_dict["on_board"][last_piece]["position"][0] + direction_vectors[last_dir][0], 
-               game_state_dict["on_board"][last_piece]["position"][1] + direction_vectors[last_dir][1])
-        move = (last_piece, pos, game_state_dict["on_board"][last_piece]["rotation"])
+	last_piece, last_dir = perform_plays.last_piece, perform_plays.last_dir
     
-    return {"move": move}
+	game_state_dict = data["state"]
+    
+	print(last_dir, last_piece)
+    
+	if last_dir == None or last_piece == None or last_piece not in game_state_dict["on_board"].keys() or game_state_dict["on_board"][last_piece]["collisions"] == []:
+		move = "FINISH"
+	else:
+		pos = (float(game_state_dict["on_board"][last_piece]["position"]["VCenter"]["x_pos"]) + direction_vectors[last_dir][0], 
+               float(game_state_dict["on_board"][last_piece]["position"]["VCenter"]["y_pos"]) + direction_vectors[last_dir][1])
+		move = (last_piece, pos, game_state_dict["on_board"][last_piece]["rotation"])
+    
+	return {"move": move}
 
 async def send_GPT_message_query(objective : str, game_state : str, user_msg : str, board_img, drawer_img):
 
