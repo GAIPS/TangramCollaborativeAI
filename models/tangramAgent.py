@@ -154,7 +154,7 @@ class TangramAgent:
                     await websocket.send(json.dumps(res))
             else:
                 await websocket.send(json.dumps(response))
-            print("Sent response to client")
+            print("Sent response to client:\n", response)
 
     async def start_server(self, host="localhost", port=5000):
         async with websockets.serve(self.handle_connection, host, port):
