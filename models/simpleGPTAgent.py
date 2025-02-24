@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import os
 from openai import OpenAI
 from tangramAgent import TangramAgent
@@ -7,7 +8,7 @@ class ChatAgent():
     def __init__(self):
         super().__init__()
         self.chatLog = []
-        self.model = "gpt-4o"
+        self.model = "o1"
         self.temperature = 0.7
         self.max_tokens = 1024
         self.historyLimit = 20
@@ -25,7 +26,7 @@ It often makes sense to use pieces of the same shape to furfil similar objective
 
     async def handleChat(self, objective, game_state, user_msg, board_img, drawer_img):
         messages = self.chatLog[-self.historyLimit:]
-        user_message = await self.makeChatMessage(objective, game_state, user_msg)
+        user_message = await self.makeChatMessage(objective, game_state, user_msg, board_img)
         messages.append(user_message)
         
         try:
@@ -43,14 +44,15 @@ It often makes sense to use pieces of the same shape to furfil similar objective
         self.chatLog.append({"role": "assistant", "content": assistant_message})
         return assistant_message
 
-    async def makeChatMessage(self, objective, game_state, user_msg):
+    async def makeChatMessage(self, objective, game_state, user_msg, board_img):
         return {
             "role": "user",
-            "content": (
-                f"Current Objective: {objective}\n"
-                f"Game State:\n{game_state}\n"
-                f"New message to reply to:\n{user_msg}"
-            )
+            "content": [
+                    {"type": "text", "text": f"Objective: {objective}"},
+                    {"type": "text", "text": f"Game State: {game_state}"},
+                    {"image": board_img},
+                    {"type": "text", "text": f"The message you are replying to: {user_msg}"}
+                ]
         }
 
 class PlayAgent():
@@ -66,28 +68,59 @@ class PlayAgent():
         self.play_system_message = {
             "role": "system",
             "content": (
-                "You and the human user are playing a tangram game, arranging the pieces to form an objective shape. "
-                "You will be provided the last messages shared between both of you to help you take into consideration previous discussions and decisions. "
-                "The pieces are named by their colors: Red, Purple, Yellow, Green, Blue, Cream, and Brown. "
-                "Red and Cream are two large triangles, Yellow and green are two small triangles, Blue is a medium triangle, Purple is a small square, Brown is a tilted parallelogram. "
-                "We consider 0 degrees of rotation the triangles with their hypotenuse facing down, and the square in the square position (so the diamond shape corresponds to 45 degrees of rotation). "
-                "You generate tangram moves in exact format: {piece}, {rotation}, {x}, {y}\\n{message}. where piece is the name of one of our shapes, rotation is the angle in degrees (must be multiple of 45), "
-                "and x, y are the float coordinates from 0 to 100, where 100,100 is the top right corner of the piece on the board. The message should be a short explanation of the move reasoning (1-3 lines at most)."
+                """You and the human user are playing a tangram game, arranging pieces to form an objective shape.
+                You will be provided with previous messages to consider past discussions and decisions. as well as a game state and an image of the board. You should ananlyse these to make a logical play move.
+                Try to undestand what the parts already on the board are representing with the image and how they can be used to form the objective shape.
+                Your answer should ideally say what the piece is meant to represent and where you are trying to place it in.
+                \n
+                The tangram pieces are:
+                - Red: Large Triangle
+                - Cream: Large Triangle
+                - Yellow: Small Triangle
+                - Green: Small Triangle
+                - Blue: Medium Triangle
+                - Purple: Square
+                - Brown: Tilted Parallelogram
+
+                **Rotation Rules:**
+                - 0°: Triangles' hypotenuse faces down, thus somewhat like an arrow pointing up; 
+                - Square is in a square position at 0°
+                - 45°: Square appears as a diamond
+                - Rotations must be multiples of 45°
+
+                **Board Coordinates:**
+                - X and Y range from **5 to 95** (100,100 is the top-right corner)
+                **Required Output Format (One Move Per Line):**
+                Format: {piece}, {rotation}, {x}, {y}\\n{message}
+                - {piece} = One of the piece names
+                - {rotation} = Rotation in degrees (0, 45, 90, ..., 315)
+                - {x}, {y} = Float coordinates from 5 to 95
+                - {message} = Short reasoning (1-3 lines)
+
+                **Example Output:**
+                Red, 0, 50, 50\nPlacing the red triangle at the center as a base.
+                Purple, 45, 30, 70\nPositioning the square as a diamond to form a head on top of the body.
+                Green, 45, 30, 70\nI like green as a hat, on top of purple.
+                """
             )
         }
+
 
     async def generatePlay(self, objective, game_state, board_img, drawer_img):
         context = [
             self.play_system_message,
-            {"role": "user", "content": f"Objective: {objective}\nGame State: {game_state}"}
+            {"role": "user", 
+                "content": [
+                    f"Objective: {objective}.\nGame State: {game_state}",
+                    {"image": board_img}
+                ]
+            },
         ]
-        # Append last few chat messages (last 6) if available
-        context.extend(self.chat_agent.chatLog[-6:])
         
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=context,
+                messages=self.chat_agent.chatLog[-6:] + context,
                 temperature=self.temperature,
                 max_tokens=self.max_tokens
             )
@@ -98,6 +131,7 @@ class PlayAgent():
         assistant_content = response.choices[0].message.content
         # Update last_play_context for feedback (retain context without altering feedback later)
         self.last_play_context = context + [{"role": "assistant", "content": assistant_content}]
+        self.chat_agent.chatLog.append({"role": "assistant", "content": assistant_content})
         return assistant_content
 
 class FeedbackAgent():
@@ -108,29 +142,67 @@ class FeedbackAgent():
         self.max_tokens = 256
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.playAgent = play_agent
+        self.memory = []
         # System message for adjustments
         self.system_message = {
             "role": "system",
             "content": (
-                "Adjust previous move based on recent feedback. Keep same format without additional messaging: {piece}, {rotation}, {x}, {y}."
-                "Do not make completely different moves YOU MUST ONLY MOVE THE PIECE YOU WERE MOVING IN THIS TURN; simply suggest minor changes to avoid problems like overlapping or not creating the desired effect. "
-                "However, if there are no overlaps and you are satisfied with the move, do not change the move and reply with exactly just the word, please avoid doing more that 3 adjustments but dont stop untill its not overlapping 'FINISH'."
+                """You are adjusting the previous move based on the feedback from an action. 
+                Your goal is to adjust the placement of the piece as described by another agent by checking if the image of the board correctly includes the piece in a way that executes the ideia the agent explained.
+                **Rules for Adjustments:**
+                - Keep the **same format**: `{piece}, {rotation}, {x}, {y}`
+                - **Only adjust the piece you moved this turn**—do **not** switch to a different piece.
+                - Make **minor changes only** to avoid issues like overlapping or incorrect positioning, you can make bigger changes if its very far from the desired location.
+                - when overlaping try to understand from the image what direction would free the piece from the overlap and respect the agents request.
+                - Do **not** make more than 5 adjustments unless overlap persists.
+                - You can go back to a previous answer if you think it was better and had no overlaps.
+                **Stopping Condition:**
+                - If there is **no overlap** and the move is correct, reply with exactly: `FINISH` (no extra words).
+                - Continue adjusting until there is no overlap, but do **not** exceed 3 changes unless necessary.
+                **Required Output Format:**
+                {piece}, {rotation}, {x}, {y}
+                **Example Adjustments:**
+                In a case where the piece is close but maybe slightly overlapping or slightly off the desired location:
+                Red, 0, 48, 50
+                Red, 0, 45, 50
+                Red, 0, 44, 51
+                Red, 0, 48, 50
+                FINISH
+                In a case where the piece is really far from the desired location:
+                Red, 0, 80, 20
+                Red, 0, 20, 80
+                Red, 0, 40, 40
+                Red, 0, 38, 40
+                Red, 0, 37, 40
+                FINISH
+                In a case the rotation didnt match the request and 0 produces the best result:
+                Red, 45, 30, 30
+                Red, 90, 30, 30
+                Red, 0, 30, 30
+                FINISH
+                """
             )
         }
 
-    async def adjustPlay(self, game_state, hasOverlaps="No"):
+
+    async def adjustPlay(self, game_state, board_img, hasOverlaps="No"):
         # Determine if there are any collisions in the game state
         for shape in game_state["on_board"]:
             if len(game_state["on_board"][shape]["collisions"]) > 0:
                 hasOverlaps = "Yes"
                 break
 
-        messages = [msg for msg in self.playAgent.last_play_context if msg["role"] != "system"]
+        messages = [msg for msg in self.playAgent.last_play_context]
+        messages += self.memory
         messages.append(self.system_message)
-        messages.append({
-            "role": "user",
-            "content": f"Feedback game state: {game_state}\nAre there Overlaps?: {hasOverlaps}\n"
-        })
+        adjustData = {"role": "user", 
+                        "content": [
+                            {"type": "text", "text": f"Feedback game state: {game_state}"},
+                            {"type": "text", "text": f"Are there Overlaps?: {hasOverlaps}"},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{board_img}"}}
+                        ]
+                    }
+        messages.append(adjustData)
         
         try:
             response = self.client.chat.completions.create(
@@ -144,9 +216,11 @@ class FeedbackAgent():
             return "Error adjusting play move."
 
         assistant_content = response.choices[0].message.content
+        self.memory.append(adjustData)
+        self.memory.append({"role": "assistant", "content": assistant_content})
         messages.append({"role": "assistant", "content": assistant_content})
-        # Update last_play_context for future reference (without the play system message)
-        self.playAgent.last_play_context = messages.copy()
+        if "FINISH" in assistant_content:
+            self.memory = []
         return assistant_content
 
 class CustomAgent(TangramAgent):
@@ -162,8 +236,10 @@ class CustomAgent(TangramAgent):
         play_response = await self.play_agent.generatePlay(
             data["objective"],
             data["state"],
-            data["board_img"],
-            data["drawer_img"]
+            base64.b64encode(await self.getBoardImage()).decode("utf-8"),
+            base64.b64encode(await self.getDrawerImage()).decode("utf-8")
+            #data["board_img"],
+            #data["drawer_img"]
         )
         print(play_response)
         a = await self.parsePlayResponse(play_response, data)
@@ -172,7 +248,7 @@ class CustomAgent(TangramAgent):
 
     async def playFeedback(self, data):
         # Get adjustments based on recent context (pass full feedback data)
-        adjusted_play = await self.feedback_agent.adjustPlay(data["state"])
+        adjusted_play = await self.feedback_agent.adjustPlay(data["state"], base64.b64encode(await self.getBoardImage()).decode("utf-8"))
         return await self.parsePlayResponse(adjusted_play, data)
 
     async def chatRequest(self, data):
@@ -184,8 +260,10 @@ class CustomAgent(TangramAgent):
             data["objective"],
             data["state"],
             data["message"],
-            data["board_img"],
-            data["drawer_img"]
+            base64.b64encode(await self.getBoardImage()).decode("utf-8"),
+            base64.b64encode(await self.getDrawerImage()).decode("utf-8")
+            #data["board_img"],
+            #data["drawer_img"]
         )
         return {"type": "chat", "message": chat_response}
 

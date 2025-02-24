@@ -1,4 +1,5 @@
 import websockets
+import aiofiles
 import asyncio
 import signal
 import random
@@ -128,33 +129,50 @@ class TangramAgent:
     async def handleError(self, data):
         print("Error: ", data["message"])
 
+    async def getBoardImage(self):
+      image_path = "../Board.png"
+      async with aiofiles.open(image_path, mode="rb") as f:
+          image_data = await f.read()
+      return image_data
+    
+    async def getDrawerImage(self):
+      image_path = "../Drawer.png"
+      async with aiofiles.open(image_path, mode="rb") as f:
+          image_data = await f.read()
+      return image_data
+
     async def handle_connection(self, websocket):
-        print("Client connected")
+      print("Client connected")
 
-        # Map message types to methods.
-        eventHandlers = {
-            "playRequest": self.playRequest,
-            "playFeedback": self.playFeedback,
-            "chatRequest": self.chatRequest,
-            "error": self.handleError
-        }
+      eventHandlers = {
+          "playRequest": self.playRequest,
+          "playFeedback": self.playFeedback,
+          "chatRequest": self.chatRequest,
+          "error": self.handleError
+      }
 
-        async for message in websocket:
-            message = json.loads(message)
-            event_type = message.get("type")
-            print(f"Received request of type {event_type}")
-            if event_type not in eventHandlers:
-                response = "ERROR: Unknown request type"
-            else:
-                response = await eventHandlers[event_type](message)
+      try:
+          async for message in websocket:
+              message = json.loads(message)
+              event_type = message.get("type")
+              print(f"Received request of type {event_type}")
 
-            # Support sending either a list of responses or a single response.
-            if isinstance(response, list):
-                for res in response:
-                    await websocket.send(json.dumps(res))
-            else:
-                await websocket.send(json.dumps(response))
-            print("Sent response to client:\n", response)
+              response = await eventHandlers[event_type](message)
+
+              # Send either a list of responses or a single response.
+              if isinstance(response, list):
+                  for res in response:
+                      await websocket.send(json.dumps(res))
+              else:
+                  await websocket.send(json.dumps(response))
+              print("Sent response to client:\n", response)
+
+      except websockets.exceptions.ConnectionClosedError as e:
+          print(f"Client disconnected")
+      except asyncio.CancelledError:
+          print("WebSocket task was cancelled.")
+      except Exception as e:
+          print(f"Unexpected error: {e}")
 
     async def start_server(self, host="localhost", port=5000):
         async with websockets.serve(self.handle_connection, host, port):
