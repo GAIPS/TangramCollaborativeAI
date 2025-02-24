@@ -5,10 +5,10 @@ from openai import OpenAI
 from tangramAgent import TangramAgent
 
 class ChatAgent():
-    def __init__(self):
+    def __init__(self, model):
         super().__init__()
         self.chatLog = []
-        self.model = "o1"
+        self.model = model
         self.temperature = 0.7
         self.max_tokens = 1024
         self.historyLimit = 20
@@ -33,8 +33,8 @@ It often makes sense to use pieces of the same shape to furfil similar objective
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                #temperature=self.temperature,
+                #max_tokens=self.max_tokens
             )
         except Exception as e:
             print(f"OpenAI API error in handleChat: {e}")
@@ -50,15 +50,15 @@ It often makes sense to use pieces of the same shape to furfil similar objective
             "content": [
                     {"type": "text", "text": f"Objective: {objective}"},
                     {"type": "text", "text": f"Game State: {game_state}"},
-                    {"image": board_img},
+                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{board_img}"}},
                     {"type": "text", "text": f"The message you are replying to: {user_msg}"}
                 ]
         }
 
 class PlayAgent():
-    def __init__(self, chat_agent):
+    def __init__(self, chat_agent, model):
         super().__init__()
-        self.model = "gpt-4o"
+        self.model = model
         self.temperature = 0.7
         self.max_tokens = 1024
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -88,18 +88,27 @@ class PlayAgent():
                 - 45°: Square appears as a diamond
                 - Rotations must be multiples of 45°
 
+                *Thinking ideas*
+                - Consider what the pieces current visible in the board look like in our context, and what was previously discussed.
+                - Think about how the missing pieces can be used to form missing parts of the objective shape.
+                - Consider if you agreed with the player on doing something that wasn't yet been done.
+
                 **Board Coordinates:**
                 - X and Y range from **5 to 95** (100,100 is the top-right corner)
                 **Required Output Format (One Move Per Line):**
-                Format: {piece}, {rotation}, {x}, {y}\\n{message}
+                Format: 
+                {piece}, {rotation}, {x}, {y} 
+                {message}
+
+                Where:
                 - {piece} = One of the piece names
                 - {rotation} = Rotation in degrees (0, 45, 90, ..., 315)
-                - {x}, {y} = Float coordinates from 5 to 95
+                - {x}, {y} = Float coordinates from 5 to 95 positive only
                 - {message} = Short reasoning (1-3 lines)
 
                 **Example Output:**
-                Red, 0, 50, 50\nPlacing the red triangle at the center as a base.
-                Purple, 45, 30, 70\nPositioning the square as a diamond to form a head on top of the body.
+                Red, 0, 50, 50\nI'm going to place the red triangle at the center as it could work as a base.
+                Purple, 45, 30, 70\nMaybe the square as a diamond would form a head if placed on top of the body we have been building with the triangles.
                 Green, 45, 30, 70\nI like green as a hat, on top of purple.
                 """
             )
@@ -112,7 +121,7 @@ class PlayAgent():
             {"role": "user", 
                 "content": [
                     f"Objective: {objective}.\nGame State: {game_state}",
-                    {"image": board_img}
+                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{board_img}"}}
                 ]
             },
         ]
@@ -121,8 +130,8 @@ class PlayAgent():
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=self.chat_agent.chatLog[-6:] + context,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                #temperature=self.temperature,
+                #max_tokens=self.max_tokens
             )
         except Exception as e:
             print(f"OpenAI API error in generatePlay: {e}")
@@ -130,38 +139,55 @@ class PlayAgent():
 
         assistant_content = response.choices[0].message.content
         # Update last_play_context for feedback (retain context without altering feedback later)
-        self.last_play_context = context + [{"role": "assistant", "content": assistant_content}]
+        self.last_play_context = [{"role": "assistant", "content": "The agent said: " + assistant_content}]
         self.chat_agent.chatLog.append({"role": "assistant", "content": assistant_content})
         return assistant_content
 
 class FeedbackAgent():
-    def __init__(self, play_agent):
+    def __init__(self, play_agent, model):
         super().__init__()
-        self.model = "gpt-4o"
+        self.model = model
         self.temperature = 0.7
         self.max_tokens = 256
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         self.playAgent = play_agent
         self.memory = []
+        self.count = 0
+        self.hardMAX = 10
+        self.latestValid = ""
         # System message for adjustments
         self.system_message = {
             "role": "system",
             "content": (
                 """You are adjusting the previous move based on the feedback from an action. 
                 Your goal is to adjust the placement of the piece as described by another agent by checking if the image of the board correctly includes the piece in a way that executes the ideia the agent explained.
+                
                 **Rules for Adjustments:**
-                - Keep the **same format**: `{piece}, {rotation}, {x}, {y}`
                 - **Only adjust the piece you moved this turn**—do **not** switch to a different piece.
                 - Make **minor changes only** to avoid issues like overlapping or incorrect positioning, you can make bigger changes if its very far from the desired location.
                 - when overlaping try to understand from the image what direction would free the piece from the overlap and respect the agents request.
                 - Do **not** make more than 5 adjustments unless overlap persists.
                 - You can go back to a previous answer if you think it was better and had no overlaps.
+                
+                - Keep the **format**: `{piece}, {rotation}, {x}, {y}`
+                - {rotation} = Rotation in degrees (0, 45, 90, ..., 315)
+                - {x}, {y} = Float coordinates from 5 to 95 positive only
+
                 **Stopping Condition:**
                 - If there is **no overlap** and the move is correct, reply with exactly: `FINISH` (no extra words).
-                - Continue adjusting until there is no overlap, but do **not** exceed 3 changes unless necessary.
+                - Continue refining your move until it has no overlaps.
+                - Analyse all the images in previous messages and current without overlaps and choose the imput that caused the best representation of the agents request without overlap, 
+                - if you cant find a good solution within **4** atempts, finish with the first non overlaped state you fond, if previous messages had one of these states return to the best previous one found.
+                - NEVER EXCEED 8 ATTEMPTS if its past your 8th atempt send a finish.
+
                 **Required Output Format:**
+                output for adjustments:
                 {piece}, {rotation}, {x}, {y}
+                output to end:
+                "FINISH"
+
                 **Example Adjustments:**
+                These are sequences of adjustments that could be made to a move, never send more than 1 line at a time.
                 In a case where the piece is close but maybe slightly overlapping or slightly off the desired location:
                 Red, 0, 48, 50
                 Red, 0, 45, 50
@@ -186,11 +212,21 @@ class FeedbackAgent():
 
 
     async def adjustPlay(self, game_state, board_img, hasOverlaps="No"):
+        self.count += 1
         # Determine if there are any collisions in the game state
         for shape in game_state["on_board"]:
             if len(game_state["on_board"][shape]["collisions"]) > 0:
                 hasOverlaps = "Yes"
                 break
+        
+        if hasOverlaps == "No" and len(self.memory) > 0:
+            self.latestValid = self.memory[-1]["content"]
+        if self.count > self.hardMAX+ 1:
+            print("forcing finish")
+            return "FINISH"
+        if self.count > self.hardMAX:
+            print("forcing return")
+            return self.latestValid
 
         messages = [msg for msg in self.playAgent.last_play_context]
         messages += self.memory
@@ -198,7 +234,7 @@ class FeedbackAgent():
         adjustData = {"role": "user", 
                         "content": [
                             {"type": "text", "text": f"Feedback game state: {game_state}"},
-                            {"type": "text", "text": f"Are there Overlaps?: {hasOverlaps}"},
+                            {"type": "text", "text": f"Are there Overlaps?: {hasOverlaps}, This is the your atempt number {self.count}"},
                             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{board_img}"}}
                         ]
                     }
@@ -208,8 +244,8 @@ class FeedbackAgent():
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
-                temperature=self.temperature,
-                max_tokens=self.max_tokens
+                #temperature=self.temperature,
+                #max_tokens=self.max_tokens
             )
         except Exception as e:
             print(f"OpenAI API error in adjustPlay: {e}")
@@ -220,15 +256,17 @@ class FeedbackAgent():
         self.memory.append({"role": "assistant", "content": assistant_content})
         messages.append({"role": "assistant", "content": assistant_content})
         if "FINISH" in assistant_content:
+            self.count = 0
             self.memory = []
         return assistant_content
 
 class CustomAgent(TangramAgent):
     def __init__(self):
         super().__init__()
-        self.chat_agent = ChatAgent()
-        self.play_agent = PlayAgent(self.chat_agent)
-        self.feedback_agent = FeedbackAgent(self.play_agent)
+        self.model = "gpt-4o"
+        self.chat_agent = ChatAgent(self.model)
+        self.play_agent = PlayAgent(self.chat_agent, self.model)
+        self.feedback_agent = FeedbackAgent(self.play_agent, self.model)
         self.recent_messages = []
 
     async def playRequest(self, data):      
@@ -295,8 +333,8 @@ class CustomAgent(TangramAgent):
             return res[0]
         except Exception as e:
             print(f"Error parsing play response: {e}, response received: {response}")
-            # Fallback to the base class implementation for a random move
-            return await super().playRequest(data)
+            return [{"type": "chat", "message": "Sorry had some trouble playing this turn."}, 
+                    {"type": "finish", "timestamp": data["timestamp"] if data and "timestamp" in data else ""}]
 
 async def main():
     agent = CustomAgent()
