@@ -14,7 +14,7 @@
 [ext_resource type="Script" path="res://MainMenu.gd" id="11_efl8x"]
 [ext_resource type="Texture2D" uid="uid://612x3cx67pvq" path="res://PNG/person.png" id="12_5lut2"]
 [ext_resource type="Texture2D" uid="uid://sfhqyvu1jhev" path="res://PNG/image_(1)_upscaled.png" id="12_g6cii"]
-[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/circle.png" id="12_kqnbf"]
+[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/Circle.png" id="12_kqnbf"]
 [ext_resource type="Texture2D" uid="uid://cqashkfc1m5yc" path="res://PNG/robot_hd_white_upscaled.png" id="13_6bro5"]
 [ext_resource type="Texture2D" uid="uid://c2h8ix70rljal" path="res://PNG/Thinking1.png" id="13_m8lrg"]
 [ext_resource type="Texture2D" uid="uid://2p185iod38x2" path="res://PNG/robot.png" id="13_mhtdr"]

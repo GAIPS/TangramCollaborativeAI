@@ -60,7 +60,11 @@ func _ready():
 	$"Arena/TargetDisplayText/Objective".text = game_task
 	current_turn = "Player"
 	startTime = Time.get_datetime_dict_from_system()
-	ws.connect_to_url(websocket_url) 
+	ws.connect_to_url(websocket_url)
+	
+	const outbound_buffer = 4194240 # Good size for two PNGS + text
+	const incoming_buffer = 65535 # Default godot value, change if needed  
+	ws.set_outbound_buffer_size(outbound_buffer) 
 
 #### GameLogic ####
 ####################
@@ -210,8 +214,8 @@ func makeJson(type="playRequest", message=""):
 	var body = {
 		"objective": game_task, 
 		"state": get_game_state(), 
-		#"board_img": board64,
-		#"drawer_img": drawer64,
+		"board_img": board64,
+		"drawer_img": drawer64,
 		"timestamp": getElapsedTime()
 	}
 	if type == "chatRequest":
