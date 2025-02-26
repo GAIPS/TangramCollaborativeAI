@@ -93,8 +93,12 @@ func _process(_delta):
 							finishPlayRequest()
 
 						elif message_type == "chat":
+							if not data.has("message"):
+								sendError("Error: Missing message field in received JSON")
 							$"Arena/ChatBox/AI_Chat".add_message(data["message"], true)
 							registerAIChat()
+					else:
+						sendError("Error: No message type in received JSON")
 
 	if current_turn == "Player":
 		get_node(AI_PROFILE).hide()
@@ -181,7 +185,8 @@ func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 				preMovePos = get_node(obj_selected).position
 				preMoveRot = get_node(obj_selected).rotation
 			else:
-				if not get_node(obj_selected).overlapping:
+				get_node(movedPiece).updateOverlaps()
+				if len(get_node(obj_selected).overlaps) == 0:
 					dragging = false
 					last_move = "drop"
 					get_node(obj_selected).end_drag()
@@ -224,8 +229,12 @@ func makeJson(type="playRequest", message=""):
 
 	return JSON.stringify(body)
 
+func sendError(error):
+	ws.send_text(JSON.stringify({"type": "error", "message": error}))
+
 func ai_play():
 	obj_selected = ""
+	movedPiece = ""
 	ws.send_text(makeJson("playRequest"))
 
 func sendChatMsg(message):
@@ -233,19 +242,49 @@ func sendChatMsg(message):
 	ws.send_text(makeJson("chatRequest", message))
 
 func aiPlayRequest(data):
+	if not data.has("shape"):
+		sendError("Error: No shape field in received JSON")
+		setPlayerTurn()
+	if not data.has("position"):
+		sendError("Error: No shape field in received JSON")
+		setPlayerTurn()
+	if not data.has("rotation"):
+		sendError("Error: No shape field in received JSON")
+		setPlayerTurn()
+	if len(data["position"]) != 2 or typeof(data["position"][0]) != TYPE_FLOAT or typeof(data["position"][1]) != TYPE_FLOAT:
+		sendError("Error: Invalid position field in received JSON")
+		setPlayerTurn()
+	if typeof(data["rotation"]) != TYPE_FLOAT:
+		sendError("Error: Invalid rotation field in received JSON")
+		setPlayerTurn()
+
 	print(data)
+	if movedPiece == "":
+		movedPiece = data["shape"]
+		preMovePos = get_node(data["shape"]).position
+		preMoveRot = get_node(data["shape"]).rotation
+
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
 	await movePiece(data["shape"], simpleToReal(pos), deg_to_rad(rot), 0.5)
 	await updateFigureLocation()
 	await get_tree().process_frame 
 	ws.send_text(makeJson("playFeedback"))
-	#pendingFeedback = true
 
 func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 func finishPlayRequest():
+	for shape in shapes:
+		if shapes[shape]["onBoard"]:
+			get_node(shape).updateOverlaps()
+			if len(get_node(shape).overlaps) > 0:
+				print(get_node(shape).overlaps)
+				$"Arena/ChatBox/AI_Chat".add_message("Sorry I had some trouble playing, I'll retry next round", true)
+				get_node(movedPiece).position = preMovePos
+				get_node(movedPiece).rotation = preMoveRot
+				setPlayerTurn()
+				return
 	setPlayerTurn()
 
 #####  Game State #####
@@ -259,7 +298,6 @@ func updateFigureLocation():
 				shapes[shape]["onBoard"] = true
 				break
 	
-
 func getVerticePosition(node_path : String) -> Vector2:
 	var board_origin_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
 	var board_origin_y = get_node("Arena/ArenaBoard/VOrigin").global_position.y

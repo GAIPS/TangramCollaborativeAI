@@ -14,7 +14,7 @@
 [ext_resource type="Script" path="res://MainMenu.gd" id="11_efl8x"]
 [ext_resource type="Texture2D" uid="uid://612x3cx67pvq" path="res://PNG/person.png" id="12_5lut2"]
 [ext_resource type="Texture2D" uid="uid://sfhqyvu1jhev" path="res://PNG/image_(1)_upscaled.png" id="12_g6cii"]
-[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/Circle.png" id="12_kqnbf"]
+[ext_resource type="Texture2D" uid="uid://cp42m3t1najkc" path="res://PNG/circle.png" id="12_kqnbf"]
 [ext_resource type="Texture2D" uid="uid://cqashkfc1m5yc" path="res://PNG/robot_hd_white_upscaled.png" id="13_6bro5"]
 [ext_resource type="Texture2D" uid="uid://c2h8ix70rljal" path="res://PNG/Thinking1.png" id="13_m8lrg"]
 [ext_resource type="Texture2D" uid="uid://2p185iod38x2" path="res://PNG/robot.png" id="13_mhtdr"]
@@ -136,22 +136,22 @@ texture = ExtResource("6_3q1he")
 
 [node name="TextEdit2" type="TextEdit" parent="Arena/ChatBox"]
 anchors_preset = -1
-anchor_left = -0.0609112
-anchor_top = 0.000118565
-anchor_right = -0.0609112
-anchor_bottom = 0.000118565
-offset_left = -649.675
-offset_top = 793.992
-offset_right = 550.325
-offset_bottom = 871.992
+anchor_left = -0.0610287
+anchor_top = -0.0583709
+anchor_right = -0.0610287
+offset_left = -675.121
+offset_top = 790.664
+offset_right = 524.879
+offset_bottom = 868.664
 theme_override_font_sizes/font_size = 50
+wrap_mode = 1
 metadata/_edit_use_anchors_ = true
 
 [node name="Send Button" type="TextureButton" parent="Arena/ChatBox"]
-offset_left = 449.372
-offset_top = 762.465
-offset_right = 1718.37
-offset_bottom = 1263.47
+offset_left = 415.468
+offset_top = 688.936
+offset_right = 1828.47
+offset_bottom = 1328.94
 scale = Vector2(0.25, 0.25)
 texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
@@ -160,9 +160,9 @@ stretch_mode = 4
 layout_mode = 0
 offset_left = 150.0
 offset_top = 120.0
-offset_right = 1120.0
-offset_bottom = 393.0
-theme_override_font_sizes/font_size = 200
+offset_right = 1250.0
+offset_bottom = 749.0
+theme_override_font_sizes/font_size = 250
 text = "Send
 
 "
@@ -176,10 +176,10 @@ script = ExtResource("1_gb3b3")
 offset_left = -791.0
 offset_top = -880.0
 offset_right = 757.0
-offset_bottom = 763.0
+offset_bottom = 632.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Arena/ChatBox/ScrollContainer"]
-custom_minimum_size = Vector2(1548, 1643)
+custom_minimum_size = Vector2(1548, 1500)
 layout_mode = 2
 
 [node name="Control" type="Control" parent="Arena/ChatBox"]

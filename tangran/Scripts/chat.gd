@@ -21,7 +21,7 @@ func add_message(text: String, is_ai: bool, explanation = false):
 
 	# Create the Label for the message
 	var label = Label.new()
-	label.set_text(text)
+	label.set_text(text + "\n")
 
 	label.add_theme_font_size_override("font_size", 70)
 	
