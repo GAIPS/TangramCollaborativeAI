@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://s8dxi34l715s"]
+[gd_scene load_steps=30 format=3 uid="uid://s8dxi34l715s"]
 
 [ext_resource type="Script" path="res://tangran/Scripts/chat.gd" id="1_gb3b3"]
 [ext_resource type="Script" path="res://tangran/Scenes/Main_scene.gd" id="1_k473l"]
@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" uid="uid://dmvrsove2if8l" path="res://PNG/file.png" id="14_o4054"]
 [ext_resource type="Texture2D" uid="uid://dx2ksnpst30qu" path="res://PNG/drawer dark.png" id="16_inusk"]
 [ext_resource type="PackedScene" uid="uid://bk0ioagvqiyew" path="res://forms.tscn" id="16_mcjkc"]
+[ext_resource type="Script" path="res://tangran/Scripts/Tutorial.gd" id="24_pcj5g"]
 [ext_resource type="Texture2D" uid="uid://cd48hp2giaxoh" path="res://PNG/fancyButton.png" id="25_sqod4"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_b0tua"]
@@ -745,6 +746,220 @@ icon = ExtResource("14_86dyq")
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(573, 327)
 zoom = Vector2(1.67, 1.67)
+
+[node name="Tutorial" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("24_pcj5g")
+
+[node name="Control Chat" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 448.0
+offset_right = 488.0
+offset_bottom = 40.0
+
+[node name="ColorRect" type="ColorRect" parent="Tutorial/Control Chat"]
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(17.6, 16.24)
+color = Color(0, 0, 0, 0.92549)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Chat"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 61.0
+offset_right = 646.0
+offset_bottom = 611.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]This is the Chat[/font_size]
+[font_size=32]
+You can use it to communicate directly with the AI agent,
+Send messages and discuss how to reach your goal"
+
+[node name="Control TurnIcon" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control TurnIcon"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 83, 1093, 84, 1108, 115, 1086, 177, 1024, 195, 950, 170, 928, 119, 939, 84, 966, 51, 1018, 40, 1066, 43, 1093, 84, 1158, 83, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control TurnIcon"]
+layout_mode = 0
+offset_left = 236.0
+offset_top = 64.0
+offset_right = 836.0
+offset_bottom = 614.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Turn Icon[/font_size]
+[font_size=32]
+This is the turn icon it will display either a human sillhouete during your turn ou a robot when the AI is playing"
+
+[node name="Control Drawer" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Drawer"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 326, 1104, 316, 1108, 404, 930, 408, 924, 226, 1111, 223, 1104, 316, 1158, 326, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Drawer"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 61.0
+offset_right = 646.0
+offset_bottom = 611.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Shape Drawer[/font_size]
+[font_size=32]
+This is where all the pieces are at the beginning you can take them out and place on the board"
+
+[node name="Control Objective" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Objective"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 603, 655, 602, 560, 519, 560, 510, 550, 509, 471, 518, 460, 681, 460, 689, 470, 689, 549, 681, 560, 602, 560, 603, 655, 1162, 657, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Objective"]
+layout_mode = 0
+offset_left = 298.0
+offset_top = 124.0
+offset_right = 898.0
+offset_bottom = 674.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]This is your objective[/font_size]
+[font_size=32]
+The goal of the game is to place pieces in the board in order to form our objective"
+
+[node name="Control Board" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Board"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 588.279, 656.023, 1162, 657, 1158.57, 81.8911, 1158, -14, 517, -9, 517, 48, 860, 48, 888, 66, 888, 399, 868, 416, 518, 417, 498, 399, 498, 65, 517, 48, 517, -9)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Board"]
+layout_mode = 0
+offset_left = -5.0
+offset_top = 43.0
+offset_right = 495.0
+offset_bottom = 623.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]The Board[/font_size]
+[font_size=32]
+The center of the game, this is where you can place the pieces to shape the goal
+[font_size=40]
+Controls
+[font_size=28]
+Hold Left Mouse button on a piece to move it
+
+Right Click on a piece to rotate it"
+
+[node name="Control Undo" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Undo"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 588.279, 656.023, 814, 657, 815, 562, 763, 561, 756, 539, 764, 519, 873, 519, 879, 539, 873, 561, 815, 562, 814, 657, 1162, 657, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Undo"]
+layout_mode = 0
+offset_left = 536.0
+offset_top = 144.0
+offset_right = 1136.0
+offset_bottom = 694.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Undo[/font_size]
+[font_size=32]
+You can only move one piece per turn, so if you made a mistake you can click the undo button to allow you to do something else
+"
+
+[node name="Control EndTurn" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control EndTurn"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 588.279, 656.023, 814, 657, 814, 503, 764, 502, 755, 480, 762, 459, 872, 460, 879, 482, 871, 503, 814, 503, 814, 657, 1162, 657, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control EndTurn"]
+layout_mode = 0
+offset_left = 531.0
+offset_top = 143.0
+offset_right = 1131.0
+offset_bottom = 693.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]End Turn[/font_size]
+[font_size=32]
+Once you are happy with your turn, it's time to give the AI it's turn, for this you can click this Button
+"
+
+[node name="Control Other" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Other"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 588.279, 656.023, 814, 657, 1014, 561, 962, 562, 953, 540, 960, 520, 1016, 518, 1016, 503, 960, 502, 952, 481, 959, 460, 1068, 460, 1076, 481, 1069, 502, 1016, 503, 1016, 518, 1068, 519, 1076, 540, 1069, 561, 1014, 561, 814, 657, 1162, 657, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Other"]
+layout_mode = 0
+offset_left = 313.0
+offset_top = 122.0
+offset_right = 913.0
+offset_bottom = 672.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Tutorial and Finish[/font_size]
+[font_size=32]
+If you wish to review this tutorial you can do it at anytime with the Tutorial Button.
+
+Once you are happy with the result you can finish the game with the Finish button.
+
+Have fun!
+"
 
 [connection signal="pressed" from="Arena/ChatBox/Send Button" to="Arena/ChatBox/AI_Chat" method="_on_pressed"]
 [connection signal="pressed" from="Arena/Finish Button" to="." method="_on_finish_button_pressed"]

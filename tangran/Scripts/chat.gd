@@ -71,7 +71,7 @@ func getRoot():
 	return get_parent().get_parent().get_parent()
 
 func _on_pressed():
-	if not len($"../TextEdit2".text) > 0:
+	if not len($"../TextEdit2".text) > 0 or get_parent().get_parent().get_parent().isInTutorial:
 		return
 
 	getRoot().sendChatMsg($"../TextEdit2".text)

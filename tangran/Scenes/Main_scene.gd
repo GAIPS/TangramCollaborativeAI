@@ -31,6 +31,7 @@ var originalRot
 var preMovePos
 var preMoveRot
 var hasRequest = false
+var isInTutorial = false
 
 var debugMode = false
 
@@ -70,6 +71,13 @@ func _ready():
 ####################
 func _process(_delta):
 	time_elapsed += _delta
+	if isInTutorial:
+		color(END_TURN_BUTTON, true)
+		color(CONTROLS_BUTTON, true)
+		color(FINISH_BUTTON, true)
+		color(UNDO_BUTTON, true)
+		return
+
 	ws.poll()
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
@@ -172,7 +180,7 @@ func thinkingAnimation():
 		time_elapsed = 0
 
 func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
-	if event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
+	if not isInTutorial and event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
 		if not movedPiece or debugMode:
 			movedPiece = obj_selected
 			originalPos = get_node(obj_selected).position
@@ -233,6 +241,8 @@ func sendError(error):
 	ws.send_text(JSON.stringify({"type": "error", "message": error}))
 
 func ai_play():
+	if isInTutorial:
+		return
 	obj_selected = ""
 	movedPiece = ""
 	ws.send_text(makeJson("playRequest"))
@@ -415,7 +425,7 @@ func setPlayerTurn():
 	SetHasRequest(false)
 
 func finishPlayerTurn():
-	if movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
+	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
 		current_turn = "AI"
 		thinking_asc = true
 		time_elapsed = 0.0
@@ -424,7 +434,7 @@ func finishPlayerTurn():
 		ai_play()
 
 func _undo_play():
-	if movedPiece and not dragging and current_turn == "Player":
+	if not isInTutorial and movedPiece and not dragging and current_turn == "Player":
 		get_node(movedPiece).position = originalPos
 		get_node(movedPiece).rotation = originalRot
 		movedPiece = ""
@@ -492,7 +502,7 @@ func _on_Debug_button_pressed():
 	debugMode = !debugMode
 
 func _on_finish_button_pressed():
-	if current_turn != "Player":
+	if current_turn != "Player" or isInTutorial:
 		return
 		
 	for node in get_children():
@@ -500,7 +510,9 @@ func _on_finish_button_pressed():
 	get_node("Forms").show()
 
 func _on_help_button_pressed():
-	get_node("Controls").show()
+	if isInTutorial:
+		return
+	get_node("Tutorial").startTutorial()
 
 func _on_mouse_entered(node_name):
 	if not dragging and current_turn == "Player":
