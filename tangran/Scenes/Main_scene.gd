@@ -34,11 +34,13 @@ var hasRequest = false
 var isInTutorial = false
 
 var debugMode = false
+var warnCon = true
 
 #Stats
 var startTime
 var chatSent = 0
 var chatReceived = 0
+var turns = 0
 
 #Thinking annimation
 var time_elapsed = 0
@@ -71,16 +73,14 @@ func _ready():
 ####################
 func _process(_delta):
 	time_elapsed += _delta
-	if isInTutorial:
-		color(END_TURN_BUTTON, true)
-		color(CONTROLS_BUTTON, true)
-		color(FINISH_BUTTON, true)
-		color(UNDO_BUTTON, true)
-		return
-
+	
 	ws.poll()
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
+		if not warnCon:
+			$"Arena/ChatBox/AI_Chat".add_message("Connection to AI Agent established.", true)
+			warnCon = true
+
 		while ws.get_available_packet_count():
 			var packet = ws.get_packet()
 			var json_string = packet.get_string_from_utf8()
@@ -107,6 +107,11 @@ func _process(_delta):
 							registerAIChat()
 					else:
 						sendError("Error: No message type in received JSON")
+	elif state == WebSocketPeer.STATE_CONNECTING and warnCon and time_elapsed > 1:
+		$"Arena/ChatBox/AI_Chat".add_message("Failed to find an AI Agent to connect to.", true)
+		warnCon = false
+	elif  state == WebSocketPeer.STATE_CLOSED:
+		ws.connect_to_url(websocket_url)
 
 	if current_turn == "Player":
 		get_node(AI_PROFILE).hide()
@@ -135,6 +140,9 @@ func _process(_delta):
 
 		if hasRequest:
 			get_node(END_TURN_BUTTON).modulate = Color8(145, 145, 145, 255)
+
+		if turns < 3:
+			color(FINISH_BUTTON, false)
 	else:
 		get_node(AI_PROFILE).show()
 		get_node(HUMAN_PROFILE).hide()
@@ -144,40 +152,24 @@ func _process(_delta):
 		color(FINISH_BUTTON, false)
 		for piece in shapes:
 			get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
-		thinkingAnimation()	
 		
 	 # Probably can be called less often
 	if pendingFeedback:
 		ws.send_text(makeJson("playFeedback"))
 		pendingFeedback = false
 
+	if isInTutorial:
+		color(END_TURN_BUTTON, true)
+		color(CONTROLS_BUTTON, true)
+		color(FINISH_BUTTON, true)
+		color(UNDO_BUTTON, true)
+		return
+
 func color(nodeName, b: bool):
 	if b:
 		get_node(nodeName).modulate = Color8(255, 255, 255, 255)
 	else:
 		get_node(nodeName).modulate = Color8(145, 145, 145, 255)
-
-func thinkingAnimation():
-	if time_elapsed > ANIM_THINK_TIME:
-		if thinking_asc:
-			if curr_think_state == 4:
-				curr_think_state -= 1
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-				thinking_asc = false
-				curr_think_state -= 1
-			else:
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-				curr_think_state += 1
-		else:
-			if curr_think_state == 1:
-				curr_think_state += 1
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-				thinking_asc = true
-				curr_think_state += 1
-			else:
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-				curr_think_state -= 1
-		time_elapsed = 0
 
 func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 	if not isInTutorial and event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
@@ -274,6 +266,13 @@ func aiPlayRequest(data):
 		preMovePos = get_node(data["shape"]).position
 		preMoveRot = get_node(data["shape"]).rotation
 
+	elif movedPiece != data["shape"]:
+		get_node(movedPiece).position = preMovePos
+		get_node(movedPiece).rotation = preMoveRot
+		movedPiece = data["shape"]
+		preMovePos = get_node(data["shape"]).position
+		preMoveRot = get_node(data["shape"]).rotation
+
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
 	await movePiece(data["shape"], simpleToReal(pos), deg_to_rad(rot), 0.5)
@@ -285,11 +284,11 @@ func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 func finishPlayRequest():
-	for shape in shapes:
-		if shapes[shape]["onBoard"]:
-			get_node(shape).updateOverlaps()
-			if len(get_node(shape).overlaps) > 0:
-				print(get_node(shape).overlaps)
+	turns += 1
+	if movedPiece in shapes:
+		if shapes[movedPiece]["onBoard"]:
+			get_node(movedPiece).updateOverlaps()
+			if len(get_node(movedPiece).overlaps) > 0:
 				$"Arena/ChatBox/AI_Chat".add_message("Sorry I had some trouble playing, I'll retry next round", true)
 				get_node(movedPiece).position = preMovePos
 				get_node(movedPiece).rotation = preMoveRot
@@ -422,7 +421,13 @@ func setPlayerTurn():
 	SetHasRequest(false)
 
 func finishPlayerTurn():
-	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
+	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:
+		turns += 1
+
+		if not warnCon:
+			setPlayerTurn()
+			return
+
 		current_turn = "AI"
 		thinking_asc = true
 		time_elapsed = 0.0
@@ -498,18 +503,17 @@ func _on_Debug_button_pressed():
 	debugMode = !debugMode
 
 func _on_finish_button_pressed():
-	if current_turn != "Player" or isInTutorial:
+	if current_turn != "Player" or isInTutorial or turns < 3:
 		return
 		
 	for node in get_children():
 		node.hide()
 	get_node("Forms").show()
 
-func _on_help_button_pressed():
-	if isInTutorial:
-		return
-	#get_node("Tutorial").startTutorial()
-	#print("called")
+func _on_tutorial_button_pressed():
+	if not isInTutorial:
+		get_node("Tutorial").startTutorial()
+	print("called2")
 
 func _on_mouse_entered(node_name):
 	if not dragging and current_turn == "Player":
