@@ -309,9 +309,7 @@ func updateFigureLocation():
 				break
 	
 func getVerticePosition(node_path : String) -> Vector2:
-	var board_origin_x = get_node("Arena/ArenaBoard/VOrigin").global_position.x
-	var board_origin_y = get_node("Arena/ArenaBoard/VOrigin").global_position.y
-	return realToSimple(Vector2(get_node(node_path).global_position.x - board_origin_x, get_node(node_path).global_position.y - board_origin_y))
+	return realToSimple(get_node(node_path).global_position)
 
 func getShapePosition(figure_name: String) -> Dictionary:
 	var figure_state = {
@@ -331,7 +329,6 @@ func get_game_state() -> Dictionary:
 	print("Getting game state")
 	var state = {"on_board" : {},"off_board" : {}}
 	updateFigureLocation()
-	print(shapes)
 
 	for shape in shapes:
 		if shapes[shape]["onBoard"]:
@@ -346,7 +343,6 @@ func get_game_state() -> Dictionary:
 			var rot = snapped(get_node(shape).get_rotation_degrees(), 0.01)
 			var entry = {"rotation": rot}
 			state["off_board"][shape] = entry
-	print(state)
 	return state
 
 #####  Calculations #####
@@ -440,7 +436,6 @@ func _undo_play():
 		movedPiece = ""
 
 func movePiece(object_name: String, target_position: Vector2, target_rotation: float, duration: float):
-	print(target_position)
 	var obj = get_node(object_name) #Due to hierarchy on node tree
 	
 	if obj == null:
@@ -512,7 +507,8 @@ func _on_finish_button_pressed():
 func _on_help_button_pressed():
 	if isInTutorial:
 		return
-	get_node("Tutorial").startTutorial()
+	#get_node("Tutorial").startTutorial()
+	#print("called")
 
 func _on_mouse_entered(node_name):
 	if not dragging and current_turn == "Player":

@@ -761,6 +761,7 @@ offset_right = 488.0
 offset_bottom = 40.0
 
 [node name="ColorRect" type="ColorRect" parent="Tutorial/Control Chat"]
+layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 scale = Vector2(17.6, 16.24)
@@ -964,7 +965,7 @@ Have fun!
 [connection signal="pressed" from="Arena/ChatBox/Send Button" to="Arena/ChatBox/AI_Chat" method="_on_pressed"]
 [connection signal="pressed" from="Arena/Finish Button" to="." method="_on_finish_button_pressed"]
 [connection signal="pressed" from="Arena/Debug Button" to="." method="_on_Debug_button_pressed"]
-[connection signal="pressed" from="Arena/Controls Button" to="." method="_on_help_button_pressed"]
+[connection signal="button_down" from="Arena/Controls Button" to="." method="_on_help_button_pressed"]
 [connection signal="pressed" from="Arena/Undo Button" to="." method="_undo_play"]
 [connection signal="pressed" from="Arena/End Turn Button" to="." method="finishPlayerTurn"]
 [connection signal="input_event" from="Purple" to="." method="_on_DraggableObject_input_event" binds= ["Purple"]]
