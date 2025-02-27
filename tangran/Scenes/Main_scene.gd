@@ -71,13 +71,7 @@ func _ready():
 ####################
 func _process(_delta):
 	time_elapsed += _delta
-	if isInTutorial:
-		color(END_TURN_BUTTON, true)
-		color(CONTROLS_BUTTON, true)
-		color(FINISH_BUTTON, true)
-		color(UNDO_BUTTON, true)
-		return
-
+	
 	ws.poll()
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
@@ -150,6 +144,13 @@ func _process(_delta):
 	if pendingFeedback:
 		ws.send_text(makeJson("playFeedback"))
 		pendingFeedback = false
+
+	if isInTutorial:
+		color(END_TURN_BUTTON, true)
+		color(CONTROLS_BUTTON, true)
+		color(FINISH_BUTTON, true)
+		color(UNDO_BUTTON, true)
+		return
 
 func color(nodeName, b: bool):
 	if b:
@@ -504,11 +505,10 @@ func _on_finish_button_pressed():
 		node.hide()
 	get_node("Forms").show()
 
-func _on_help_button_pressed():
-	if isInTutorial:
-		return
-	#get_node("Tutorial").startTutorial()
-	#print("called")
+func _on_tutorial_button_pressed():
+	if not isInTutorial:
+		get_node("Tutorial").startTutorial()
+	print("called2")
 
 func _on_mouse_entered(node_name):
 	if not dragging and current_turn == "Player":

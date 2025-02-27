@@ -195,6 +195,7 @@ offset_top = 454.0
 offset_right = 2227.0
 offset_bottom = 967.0
 scale = Vector2(0.1, 0.1)
+focus_mode = 0
 texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
@@ -216,6 +217,7 @@ offset_top = -198.0
 offset_right = 3590.0
 offset_bottom = 303.0
 scale = Vector2(0.1, 0.1)
+focus_mode = 0
 texture_normal = ExtResource("8_qapvr")
 stretch_mode = 4
 
@@ -236,6 +238,7 @@ offset_top = 513.0
 offset_right = 2227.0
 offset_bottom = 1026.0
 scale = Vector2(0.1, 0.1)
+focus_mode = 0
 texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
@@ -304,6 +307,7 @@ offset_top = 513.0
 offset_right = 2031.0
 offset_bottom = 1026.0
 scale = Vector2(0.1, 0.1)
+focus_mode = 0
 texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
@@ -324,6 +328,7 @@ offset_top = 454.0
 offset_right = 2030.0
 offset_bottom = 967.0
 scale = Vector2(0.1, 0.1)
+focus_mode = 0
 texture_normal = ExtResource("7_pduci")
 stretch_mode = 4
 
@@ -965,7 +970,7 @@ Have fun!
 [connection signal="pressed" from="Arena/ChatBox/Send Button" to="Arena/ChatBox/AI_Chat" method="_on_pressed"]
 [connection signal="pressed" from="Arena/Finish Button" to="." method="_on_finish_button_pressed"]
 [connection signal="pressed" from="Arena/Debug Button" to="." method="_on_Debug_button_pressed"]
-[connection signal="button_down" from="Arena/Controls Button" to="." method="_on_help_button_pressed"]
+[connection signal="button_down" from="Arena/Controls Button" to="." method="_on_tutorial_button_pressed"]
 [connection signal="pressed" from="Arena/Undo Button" to="." method="_undo_play"]
 [connection signal="pressed" from="Arena/End Turn Button" to="." method="finishPlayerTurn"]
 [connection signal="input_event" from="Purple" to="." method="_on_DraggableObject_input_event" binds= ["Purple"]]

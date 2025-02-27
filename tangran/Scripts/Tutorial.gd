@@ -5,16 +5,17 @@ var controls = []
 var active = false
 
 @onready var text_edit : TextEdit = get_parent().get_node("Arena/ChatBox/TextEdit2")
+@onready var btn : TextureButton = get_parent().get_node("Arena/Controls Button")
 
 func _ready():
-	#startTutorial()
-	#get_parent().isInTutorial = true
-	#disable_text_edit() 
+	#Swap before building
+	
 	hideTutorial()
-	pass
+	#startTutorial() 
 
 func startTutorial():
 	get_parent().isInTutorial = true
+	disable_text_edit()
 	active = true
 	current_index = 0
 	controls = []
@@ -30,12 +31,12 @@ func _input(event):
 		show_next_control()
 
 func hideTutorial():
+	enable_text_edit() 
 	for control in controls:
 		control.visible = false
 	current_index = 0
-	get_parent().isInTutorial = false
-	enable_text_edit() 
 	active = false
+	get_parent().isInTutorial = false
 
 func show_next_control():
 	if controls.size() == 0:
@@ -59,6 +60,8 @@ func reset_visibility():
 
 func disable_text_edit():
 	text_edit.editable = false
+	btn.disabled = true
 
 func enable_text_edit():
 	text_edit.editable = true
+	btn.disabled = false
