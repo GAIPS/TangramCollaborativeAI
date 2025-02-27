@@ -757,7 +757,7 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("24_pcj5g")
 
-[node name="Control Chat" type="Control" parent="Tutorial"]
+[node name="Control Start" type="Control" parent="Tutorial"]
 visible = false
 layout_mode = 3
 anchors_preset = 0
@@ -765,74 +765,29 @@ offset_left = 448.0
 offset_right = 488.0
 offset_bottom = 40.0
 
-[node name="ColorRect" type="ColorRect" parent="Tutorial/Control Chat"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-scale = Vector2(17.6, 16.24)
-color = Color(0, 0, 0, 0.92549)
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Start"]
+position = Vector2(-445, -1)
+color = Color(0, 0, 0, 0.839216)
+polygon = PackedVector2Array(-9, -9, -9, 47, -9, 47, -12, 655, 1162, 657, 1158, 83, 1158, 83, 1158, -14)
 
-[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Chat"]
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Start"]
 layout_mode = 0
-offset_left = 46.0
-offset_top = 61.0
-offset_right = 646.0
-offset_bottom = 611.0
+offset_left = -206.0
+offset_top = 58.0
+offset_right = 494.0
+offset_bottom = 608.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]This is the Chat[/font_size]
+text = "[center][font_size=50]Welcome to Tangram![/font_size]  
 [font_size=32]
-You can use it to communicate directly with the AI agent,
-Send messages and discuss how to reach your goal"
+Your goal is simple: 
+work together with an AI to complete the target shape using the given pieces.  
 
-[node name="Control TurnIcon" type="Control" parent="Tutorial"]
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+You’ll take turns moving one piece at a time, let’s see how well you can collaborate!
 
-[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control TurnIcon"]
-color = Color(0, 0, 0, 0.941176)
-polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 83, 1093, 84, 1108, 115, 1086, 177, 1024, 195, 950, 170, 928, 119, 939, 84, 966, 51, 1018, 40, 1066, 43, 1093, 84, 1158, 83, 1158, -14)
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control TurnIcon"]
-layout_mode = 0
-offset_left = 236.0
-offset_top = 64.0
-offset_right = 836.0
-offset_bottom = 614.0
-theme_override_font_sizes/normal_font_size = 50
-theme_override_font_sizes/bold_font_size = 55
-bbcode_enabled = true
-text = "[center][font_size=50]Turn Icon[/font_size]
-[font_size=32]
-This is the turn icon it will display either a human sillhouete during your turn ou a robot when the AI is playing"
-
-[node name="Control Drawer" type="Control" parent="Tutorial"]
-visible = false
-layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Drawer"]
-color = Color(0, 0, 0, 0.941176)
-polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 326, 1104, 316, 1108, 404, 930, 408, 924, 226, 1111, 223, 1104, 316, 1158, 326, 1158.57, 81.8911, 1158, -14)
-
-[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Drawer"]
-layout_mode = 0
-offset_left = 46.0
-offset_top = 61.0
-offset_right = 646.0
-offset_bottom = 611.0
-theme_override_font_sizes/normal_font_size = 50
-theme_override_font_sizes/bold_font_size = 55
-bbcode_enabled = true
-text = "[center][font_size=50]Shape Drawer[/font_size]
-[font_size=32]
-This is where all the pieces are at the beginning you can take them out and place on the board"
+Press Space to continue the tutoial
+"
 
 [node name="Control Objective" type="Control" parent="Tutorial"]
 visible = false
@@ -854,9 +809,37 @@ offset_bottom = 674.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]This is your objective[/font_size]
+text = "[center][font_size=50]This is your Objective[/font_size]  
 [font_size=32]
-The goal of the game is to place pieces in the board in order to form our objective"
+Your goal is to place the pieces on the board to match this target shape![/font_size]
+"
+
+[node name="Control Drawer" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Drawer"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 326, 1104, 316, 1104, 388, 1088.5, 404.438, 950, 405, 933, 390, 935, 252, 951, 235, 1087, 234, 1104, 252, 1104, 316, 1158, 326, 1158.57, 81.8911, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Drawer"]
+layout_mode = 0
+offset_left = 165.0
+offset_top = 102.0
+offset_right = 765.0
+offset_bottom = 652.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Shape Drawer[/font_size]  
+[font_size=32]
+All the pieces start here.  
+
+Drag them out and place them on the board to start building the shape![/font_size]
+"
 
 [node name="Control Board" type="Control" parent="Tutorial"]
 visible = false
@@ -878,15 +861,13 @@ offset_bottom = 623.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]The Board[/font_size]
-[font_size=32]
-The center of the game, this is where you can place the pieces to shape the goal
-[font_size=40]
-Controls
-[font_size=28]
-Hold Left Mouse button on a piece to move it
+text = "[center][font_size=50]The Board[/font_size]  
+[font_size=32]The heart of the game! Place your pieces here to shape the target.  
 
-Right Click on a piece to rotate it"
+[font_size=40]Controls[/font_size]  
+[font_size=28]Hold the Left Mouse Button to move a piece.  
+Right-click on a piece to rotate it.[/font_size]
+"
 
 [node name="Control Undo" type="Control" parent="Tutorial"]
 visible = false
@@ -908,9 +889,10 @@ offset_bottom = 694.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]Undo[/font_size]
+text = "[center][font_size=50]Undo[/font_size]  
 [font_size=32]
-You can only move one piece per turn, so if you made a mistake you can click the undo button to allow you to do something else
+You can only move one piece per turn. 
+If you make a mistake, simply click the Undo button to try again![/font_size]
 "
 
 [node name="Control EndTurn" type="Control" parent="Tutorial"]
@@ -933,9 +915,65 @@ offset_bottom = 693.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]End Turn[/font_size]
+text = "[center][font_size=50]End Turn[/font_size]  
 [font_size=32]
-Once you are happy with your turn, it's time to give the AI it's turn, for this you can click this Button
+When you're happy with your move, click this button to end your turn and let the AI take theirs![/font_size]
+"
+
+[node name="Control TurnIcon" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control TurnIcon"]
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -12, 655, 1162, 657, 1158, 83, 1092, 85, 1098, 101, 1100, 114, 1100, 127, 1098, 139, 1093, 150, 1085, 162, 1075, 172, 1063, 180, 1050, 186, 1038, 190, 1019, 192, 1002, 190, 986, 186, 968, 175, 955, 163, 948, 155, 944, 147, 940, 138, 938, 125, 938, 117, 940, 105, 945, 90, 951, 80, 961, 69, 970, 62, 982, 56, 994, 51, 1010, 48, 1025, 48, 1038, 50, 1050, 53, 1062, 58, 1070, 63, 1079, 70, 1092, 85, 1158, 83, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control TurnIcon"]
+layout_mode = 0
+offset_left = 236.0
+offset_top = 64.0
+offset_right = 836.0
+offset_bottom = 614.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]Turn Icon[/font_size]  
+[font_size=32]
+The turn icon shows whose turn it is:  
+
+A human silhouette for your turn, or a robot for the AI’s turn![/font_size]
+"
+
+[node name="Control Chat" type="Control" parent="Tutorial"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 448.0
+offset_right = 488.0
+offset_bottom = 40.0
+
+[node name="Polygon2D" type="Polygon2D" parent="Tutorial/Control Chat"]
+position = Vector2(-445, -1)
+color = Color(0, 0, 0, 0.941176)
+polygon = PackedVector2Array(-9, -9, -9, 47, 39, 41, 411, 41, 430, 65, 431, 584, 410, 610, 50, 612, 17, 572, 17, 66, 39, 41, -9, 47, -12, 655, 1162, 657, 1158, 83, 1158, 83, 1158, -14)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Tutorial/Control Chat"]
+layout_mode = 0
+offset_left = 46.0
+offset_top = 61.0
+offset_right = 646.0
+offset_bottom = 611.0
+theme_override_font_sizes/normal_font_size = 50
+theme_override_font_sizes/bold_font_size = 55
+bbcode_enabled = true
+text = "[center][font_size=50]This is the Chat[/font_size]  
+[font_size=32]
+Use this to communicate with the AI agent.  
+
+Send messages, share ideas, and plan your moves together![/font_size]
 "
 
 [node name="Control Other" type="Control" parent="Tutorial"]
@@ -958,13 +996,12 @@ offset_bottom = 672.0
 theme_override_font_sizes/normal_font_size = 50
 theme_override_font_sizes/bold_font_size = 55
 bbcode_enabled = true
-text = "[center][font_size=50]Tutorial and Finish[/font_size]
-[font_size=32]
-If you wish to review this tutorial you can do it at anytime with the Tutorial Button.
+text = "[center][font_size=50]Tutorial & Finish[/font_size]  
+[font_size=32]You can review this tutorial anytime by clicking the Tutorial button.  
 
-Once you are happy with the result you can finish the game with the Finish button.
+When you're happy with your progress, finish the game by clicking the Finish button.  
 
-Have fun!
+Have fun and enjoy the game![/font_size]
 "
 
 [connection signal="pressed" from="Arena/ChatBox/Send Button" to="Arena/ChatBox/AI_Chat" method="_on_pressed"]
