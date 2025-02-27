@@ -148,7 +148,6 @@ func _process(_delta):
 		color(FINISH_BUTTON, false)
 		for piece in shapes:
 			get_node(piece).get_child(0).modulate = Color8(255, 255, 255, 255)
-		thinkingAnimation()	
 		
 	 # Probably can be called less often
 	if pendingFeedback:
@@ -167,28 +166,6 @@ func color(nodeName, b: bool):
 		get_node(nodeName).modulate = Color8(255, 255, 255, 255)
 	else:
 		get_node(nodeName).modulate = Color8(145, 145, 145, 255)
-
-func thinkingAnimation():
-	if time_elapsed > ANIM_THINK_TIME:
-		if thinking_asc:
-			if curr_think_state == 4:
-				curr_think_state -= 1
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-				thinking_asc = false
-				curr_think_state -= 1
-			else:
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-				curr_think_state += 1
-		else:
-			if curr_think_state == 1:
-				curr_think_state += 1
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).show()
-				thinking_asc = true
-				curr_think_state += 1
-			else:
-				get_node("Arena/AITurn/Thinking"+str(curr_think_state)).hide()
-				curr_think_state -= 1
-		time_elapsed = 0
 
 func _on_DraggableObject_input_event(_viewport, event, _shape_idx, _node_name):
 	if not isInTutorial and event is InputEventMouseButton and current_turn == "Player" and obj_selected != "" and (not movedPiece or obj_selected == movedPiece or debugMode):
