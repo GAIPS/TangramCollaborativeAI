@@ -3,6 +3,10 @@ extends Area2D
 var dragging = false
 var overlapping = false
 var overlaps = []
+var drawerPosition
+
+func _ready():
+	drawerPosition = global_position
 
 func _process(_delta):
 	
@@ -41,6 +45,10 @@ func start_drag():
 func end_drag():
 	z_index = 0
 	dragging = false
+	for area in get_overlapping_areas():
+		if area == get_node("../Arena/ArenaPieceDrawer"):
+			global_position = drawerPosition
+			break
 	
 func get_overlapping():
 	var overlapping_areas = get_overlapping_areas()

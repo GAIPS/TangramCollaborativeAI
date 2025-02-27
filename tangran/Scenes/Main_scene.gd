@@ -34,6 +34,7 @@ var hasRequest = false
 var isInTutorial = false
 
 var debugMode = false
+var warnCon = true
 
 #Stats
 var startTime
@@ -75,6 +76,10 @@ func _process(_delta):
 	ws.poll()
 	var state = ws.get_ready_state()
 	if state == WebSocketPeer.STATE_OPEN:
+		if not warnCon:
+			$"Arena/ChatBox/AI_Chat".add_message("Connection to AI Agent established.", true)
+			warnCon = true
+
 		while ws.get_available_packet_count():
 			var packet = ws.get_packet()
 			var json_string = packet.get_string_from_utf8()
@@ -101,6 +106,11 @@ func _process(_delta):
 							registerAIChat()
 					else:
 						sendError("Error: No message type in received JSON")
+	elif state == WebSocketPeer.STATE_CONNECTING and warnCon and time_elapsed > 1:
+		$"Arena/ChatBox/AI_Chat".add_message("Failed to find an AI Agent to connect to.", true)
+		warnCon = false
+	elif  state == WebSocketPeer.STATE_CLOSED:
+		ws.connect_to_url(websocket_url)
 
 	if current_turn == "Player":
 		get_node(AI_PROFILE).hide()
@@ -275,6 +285,13 @@ func aiPlayRequest(data):
 		preMovePos = get_node(data["shape"]).position
 		preMoveRot = get_node(data["shape"]).rotation
 
+	elif movedPiece != data["shape"]:
+		get_node(movedPiece).position = preMovePos
+		get_node(movedPiece).rotation = preMoveRot
+		movedPiece = data["shape"]
+		preMovePos = get_node(data["shape"]).position
+		preMoveRot = get_node(data["shape"]).rotation
+
 	var pos = Vector2(data["position"][0], data["position"][1]) # Should force 0 - 100
 	var rot = data["rotation"]
 	await movePiece(data["shape"], simpleToReal(pos), deg_to_rad(rot), 0.5)
@@ -286,11 +303,10 @@ func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 func finishPlayRequest():
-	for shape in shapes:
-		if shapes[shape]["onBoard"]:
-			get_node(shape).updateOverlaps()
-			if len(get_node(shape).overlaps) > 0:
-				print(get_node(shape).overlaps)
+	if movedPiece in shapes:
+		if shapes[movedPiece]["onBoard"]:
+			get_node(movedPiece).updateOverlaps()
+			if len(get_node(movedPiece).overlaps) > 0:
 				$"Arena/ChatBox/AI_Chat".add_message("Sorry I had some trouble playing, I'll retry next round", true)
 				get_node(movedPiece).position = preMovePos
 				get_node(movedPiece).rotation = preMoveRot
@@ -423,6 +439,10 @@ func setPlayerTurn():
 
 func finishPlayerTurn():
 	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
+		if not warnCon:
+			setPlayerTurn()
+			return
+
 		current_turn = "AI"
 		thinking_asc = true
 		time_elapsed = 0.0
