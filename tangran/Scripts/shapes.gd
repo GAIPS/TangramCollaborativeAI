@@ -23,10 +23,16 @@ func _process(_delta):
 func updateOverlaps():
 	overlaps = []
 	for area in get_overlapping_areas():
-		if area == get_node("../Arena/ArenaBoard") || area == get_node("../Arena/ArenaPieceDrawer"):
+		if area == get_node("../Arena/ArenaBoard") || area == get_node("../Arena/ArenaPieceDrawer") || area.name.is_valid_int():
 			continue
 		else:
-			overlaps.append(area.name)
+			var areaName = area.name
+			if areaName == &"Area2D":
+				overlaps.append("BOUNDARY")
+			else:
+				overlaps.append(areaName)
+
+	print(overlaps)
 
 func start_drag():
 	z_index = 2

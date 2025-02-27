@@ -21,7 +21,7 @@ func add_message(text: String, is_ai: bool, explanation = false):
 
 	# Create the Label for the message
 	var label = Label.new()
-	label.set_text(text)
+	label.set_text(text + "\n")
 
 	label.add_theme_font_size_override("font_size", 70)
 	
@@ -71,7 +71,7 @@ func getRoot():
 	return get_parent().get_parent().get_parent()
 
 func _on_pressed():
-	if not len($"../TextEdit2".text) > 0:
+	if not len($"../TextEdit2".text) > 0 or get_parent().get_parent().get_parent().isInTutorial:
 		return
 
 	getRoot().sendChatMsg($"../TextEdit2".text)

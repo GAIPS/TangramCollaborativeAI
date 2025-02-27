@@ -72,6 +72,7 @@ class PlayAgent():
                 You will be provided with previous messages to consider past discussions and decisions. as well as a game state and an image of the board. You should ananlyse these to make a logical play move.
                 Try to undestand what the parts already on the board are representing with the image and how they can be used to form the objective shape.
                 Your answer should ideally say what the piece is meant to represent and where you are trying to place it in.
+                You can move pieces both on and off the board as well as rotating them to provide better parts.
                 \n
                 The tangram pieces are:
                 - Red: Large Triangle
@@ -88,7 +89,9 @@ class PlayAgent():
                 - 45°: Square appears as a diamond
                 - Rotations must be multiples of 45°
 
-                *Thinking ideas*
+                *Reason*
+                - You should reason what the best thing to do would be so explain your chain of thought like: 
+                "I can see that purple is already placed and looks like and head, also the user said that red was a good torso, moving red would make sense" followed by the response format.
                 - Consider what the pieces current visible in the board look like in our context, and what was previously discussed.
                 - Think about how the missing pieces can be used to form missing parts of the objective shape.
                 - Consider if you agreed with the player on doing something that wasn't yet been done.
@@ -96,9 +99,8 @@ class PlayAgent():
                 **Board Coordinates:**
                 - X and Y range from **5 to 95** (100,100 is the top-right corner)
                 **Required Output Format (One Move Per Line):**
-                Format: 
-                {piece}, {rotation}, {x}, {y} 
-                {message}
+                Exact Format: 
+                PLAY {piece}, {rotation}, {x}, {y} | {message}
 
                 Where:
                 - {piece} = One of the piece names
@@ -106,10 +108,13 @@ class PlayAgent():
                 - {x}, {y} = Float coordinates from 5 to 95 positive only
                 - {message} = Short reasoning (1-3 lines)
 
+                In the ocasion you think the game is finished send the exact format:
+                "FINISH" {message}
+
                 **Example Output:**
-                Red, 0, 50, 50\nI'm going to place the red triangle at the center as it could work as a base.
-                Purple, 45, 30, 70\nMaybe the square as a diamond would form a head if placed on top of the body we have been building with the triangles.
-                Green, 45, 30, 70\nI like green as a hat, on top of purple.
+                PLAY Red, 0, 50, 50 | I'm going to place the red triangle at the center as it could work as a base.
+                PLAY Purple, 45, 30, 70 | Maybe the square as a diamond would form a head if placed on top of the body we have been building with the triangles.
+                PLAY Green, 45, 30, 70 | I like green as a hat, on top of purple.
                 """
             )
         }
@@ -168,10 +173,10 @@ class FeedbackAgent():
                 - when overlaping try to understand from the image what direction would free the piece from the overlap and respect the agents request.
                 - Do **not** make more than 5 adjustments unless overlap persists.
                 - You can go back to a previous answer if you think it was better and had no overlaps.
-                
-                - Keep the **format**: `{piece}, {rotation}, {x}, {y}`
+
+                - For the **format**: `PLAY {piece}, {rotation}, {x}, {y}`
                 - {rotation} = Rotation in degrees (0, 45, 90, ..., 315)
-                - {x}, {y} = Float coordinates from 5 to 95 positive only
+                - {x}, {y} = Float coordinates from 5 to 95 positive only (100,100 is the top-right corner, so lower values are closer to the bottom and left respectively)    
 
                 **Stopping Condition:**
                 - If there is **no overlap** and the move is correct, reply with exactly: `FINISH` (no extra words).
@@ -180,31 +185,35 @@ class FeedbackAgent():
                 - if you cant find a good solution within **4** atempts, finish with the first non overlaped state you fond, if previous messages had one of these states return to the best previous one found.
                 - NEVER EXCEED 8 ATTEMPTS if its past your 8th atempt send a finish.
 
+                *Reason*
+                - You should reason what the best thing to do would be so explain your chain of thought like: 
+                "The agent was atemppting to place cream left of red, however the rotation is off, I will try to rotate it to 45 degrees and move it to the left by decreasing the first coordenate" followed by the response format.
+                
                 **Required Output Format:**
                 output for adjustments:
-                {piece}, {rotation}, {x}, {y}
+                PLAY {piece}, {rotation}, {x}, {y}
                 output to end:
                 "FINISH"
 
                 **Example Adjustments:**
                 These are sequences of adjustments that could be made to a move, never send more than 1 line at a time.
                 In a case where the piece is close but maybe slightly overlapping or slightly off the desired location:
-                Red, 0, 48, 50
-                Red, 0, 45, 50
-                Red, 0, 44, 51
-                Red, 0, 48, 50
+                PLAY Red, 0, 48, 50
+                PLAY Red, 0, 45, 50
+                PLAY Red, 0, 44, 51
+                PLAY Red, 0, 48, 50
                 FINISH
                 In a case where the piece is really far from the desired location:
-                Red, 0, 80, 20
-                Red, 0, 20, 80
-                Red, 0, 40, 40
-                Red, 0, 38, 40
-                Red, 0, 37, 40
+                PLAY Red, 0, 80, 20
+                PLAY Red, 0, 20, 80
+                PLAY Red, 0, 40, 40
+                PLAY Red, 0, 38, 40
+                PLAY Red, 0, 37, 40
                 FINISH
                 In a case the rotation didnt match the request and 0 produces the best result:
-                Red, 45, 30, 30
-                Red, 90, 30, 30
-                Red, 0, 30, 30
+                PLAY Red, 45, 30, 30
+                PLAY Red, 90, 30, 30
+                PLAY Red, 0, 30, 30
                 FINISH
                 """
             )
@@ -307,12 +316,17 @@ class CustomAgent(TangramAgent):
 
     async def parsePlayResponse(self, response, data=None):
         # Check if the response indicates no changes are needed
-        if response.strip().upper() == "FINISH":
+        if "FINISH" in response:#response.strip().split()[0].upper() == "FINISH":
+            if len(response.strip().split()) > 1:
+                return [{"type": "chat", "message": response.split("FINISH")[1].strip()}, 
+                        {"type": "finish", "timestamp": data["timestamp"] if data and "timestamp" in data else ""}]
             return {"type": "finish", "timestamp": data["timestamp"] if data and "timestamp" in data else ""}
         
         try:
             # Split into move and message parts
-            lines = response.split("\n", 1)
+            response = response.split("PLAY")[1].strip()
+                    
+            lines = response.split("|", 1)
             move_part = lines[0]
             message_part = lines[1] if len(lines) > 1 else False
             parts = [part.strip() for part in move_part.split(",")]
