@@ -298,10 +298,10 @@ class CustomAgent(TangramAgent):
             data["objective"],
             data["state"],
             data["message"],
-            base64.b64encode(await self.getBoardImage()).decode("utf-8"),
-            base64.b64encode(await self.getDrawerImage()).decode("utf-8")
-            #data["board_img"],
-            #data["drawer_img"]
+            #base64.b64encode(await self.getBoardImage()).decode("utf-8"),
+            #base64.b64encode(await self.getDrawerImage()).decode("utf-8")
+            data["board_img"],
+            data["drawer_img"]
         )
         return {"type": "chat", "message": chat_response}
 

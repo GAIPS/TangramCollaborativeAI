@@ -315,6 +315,7 @@ func realToSimple(coords: Vector2) -> Vector2:
 	var scale_x = 100.0 / (upper_right_corner.x - bottom_left_corner.x)
 	var scale_y = 100.0 / (upper_right_corner.y - bottom_left_corner.y)
 	
+	
 	var simple_x = (coords.x - bottom_left_corner.x) * scale_x
 	var simple_y = (coords.y - bottom_left_corner.y) * scale_y
 	
