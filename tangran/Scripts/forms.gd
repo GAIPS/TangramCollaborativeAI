@@ -39,5 +39,5 @@ func _on_Submit():
 	if 0 in values:
 		return
 	
-	get_parent().saveStatistics(values)
+	#get_parent().saveStatistics(values)
 	get_tree().quit(0)

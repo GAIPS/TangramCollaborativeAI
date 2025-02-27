@@ -40,6 +40,7 @@ var warnCon = true
 var startTime
 var chatSent = 0
 var chatReceived = 0
+var turns = 0
 
 #Thinking annimation
 var time_elapsed = 0
@@ -139,6 +140,9 @@ func _process(_delta):
 
 		if hasRequest:
 			get_node(END_TURN_BUTTON).modulate = Color8(145, 145, 145, 255)
+
+		if turns < 3:
+			color(FINISH_BUTTON, false)
 	else:
 		get_node(AI_PROFILE).show()
 		get_node(HUMAN_PROFILE).hide()
@@ -280,6 +284,7 @@ func wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
 
 func finishPlayRequest():
+	turns += 1
 	if movedPiece in shapes:
 		if shapes[movedPiece]["onBoard"]:
 			get_node(movedPiece).updateOverlaps()
@@ -415,7 +420,9 @@ func setPlayerTurn():
 	SetHasRequest(false)
 
 func finishPlayerTurn():
-	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:		
+	if not isInTutorial and movedPiece and not dragging and current_turn == "Player" and not hasRequest:
+		turns += 1
+
 		if not warnCon:
 			setPlayerTurn()
 			return
@@ -495,7 +502,7 @@ func _on_Debug_button_pressed():
 	debugMode = !debugMode
 
 func _on_finish_button_pressed():
-	if current_turn != "Player" or isInTutorial:
+	if current_turn != "Player" or isInTutorial or turns < 3:
 		return
 		
 	for node in get_children():
