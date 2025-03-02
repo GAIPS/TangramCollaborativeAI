@@ -1,0 +1,1 @@
+HTTP agents are not currently in use, and the game doesn't expect any HTTP requests. These files are only for use in case HTTP requests are preferred over WebSockets.
