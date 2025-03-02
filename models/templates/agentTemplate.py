@@ -1,5 +1,5 @@
 import asyncio
-from tangramAgent import TangramAgent
+from models.templates.tangramAgent import TangramAgent
 
 class CustomAgent(TangramAgent):
     def __init__(self):

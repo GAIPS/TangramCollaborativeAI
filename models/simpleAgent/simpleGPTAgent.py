@@ -2,7 +2,7 @@ import asyncio
 import base64
 import os
 from openai import OpenAI
-from tangramAgent import TangramAgent
+from models.templates.tangramAgent import TangramAgent
 
 class ChatAgent():
     def __init__(self, model):

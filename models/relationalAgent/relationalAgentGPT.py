@@ -1,7 +1,7 @@
 import asyncio
 import os
 from openai import OpenAI
-from tangramAgent import TangramAgent
+from models.templates.tangramAgent import TangramAgent
 
 class CustomAgent(TangramAgent):
 
