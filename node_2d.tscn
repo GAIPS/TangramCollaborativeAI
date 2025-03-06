@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bux0tyjw24r2l"]
 
-[ext_resource type="Script" path="res://tangran/Scenes/shapes.gd" id="1_co8y4"]
+[ext_resource type="Script" path="res://tangran/Scripts/shapes.gd" id="1_co8y4"]
 
 [sub_resource type="Shader" id="Shader_0yibm"]
 code = "shader_type canvas_item;

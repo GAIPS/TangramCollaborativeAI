@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bk0ioagvqiyew"]
 
-[ext_resource type="Script" path="res://forms.gd" id="1_513nx"]
+[ext_resource type="Script" path="res://tangran/Scripts/forms.gd" id="1_513nx"]
 [ext_resource type="Texture2D" uid="uid://buf2cb6sjf30o" path="res://PNG/4853433.jpg" id="1_uyixe"]
 [ext_resource type="Texture2D" uid="uid://bnnpsvr735etn" path="res://PNG/octaButton.png" id="3_vovmk"]
 
@@ -18,12 +18,23 @@ position = Vector2(561.5, 331)
 scale = Vector2(0.384333, 0.323)
 texture = ExtResource("1_uyixe")
 
+[node name="Question" type="Label" parent="."]
+layout_mode = 0
+offset_left = 335.0
+offset_top = 124.0
+offset_right = 781.0
+offset_bottom = 324.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 50
+text = "Thanks for playing
+"
+
 [node name="Submit" type="TextureButton" parent="."]
 layout_mode = 0
-offset_left = 448.0
-offset_top = 542.0
-offset_right = 2743.0
-offset_bottom = 1440.0
+offset_left = 445.0
+offset_top = 393.0
+offset_right = 2740.0
+offset_bottom = 1291.0
 scale = Vector2(0.1, 0.1)
 texture_normal = ExtResource("3_vovmk")
 stretch_mode = 4
@@ -35,11 +46,12 @@ offset_top = 50.0
 offset_right = 2270.0
 offset_bottom = 870.0
 theme_override_font_sizes/font_size = 400
-text = "Submit"
+text = "Quit"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="0" type="Control" parent="."]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = -15.0
@@ -54,9 +66,11 @@ offset_top = 79.0
 offset_right = 769.0
 offset_bottom = 102.0
 theme_override_colors/font_color = Color(0, 0, 0, 1)
-text = "How useful was the AI agent in completing the task?"
+text = "Thanks for playing
+"
 
 [node name="1" type="Area2D" parent="0"]
+visible = false
 position = Vector2(442, 154)
 scale = Vector2(0.4, 0.4)
 
@@ -78,6 +92,7 @@ visible = false
 polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
 
 [node name="2" type="Area2D" parent="0"]
+visible = false
 position = Vector2(505, 154)
 scale = Vector2(0.4, 0.4)
 
@@ -99,6 +114,7 @@ visible = false
 polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
 
 [node name="3" type="Area2D" parent="0"]
+visible = false
 position = Vector2(566, 154)
 scale = Vector2(0.4, 0.4)
 
@@ -120,6 +136,7 @@ visible = false
 polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
 
 [node name="4" type="Area2D" parent="0"]
+visible = false
 position = Vector2(628, 154)
 scale = Vector2(0.4, 0.4)
 
@@ -141,6 +158,7 @@ visible = false
 polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
 
 [node name="5" type="Area2D" parent="0"]
+visible = false
 position = Vector2(686, 154)
 scale = Vector2(0.4, 0.4)
 
