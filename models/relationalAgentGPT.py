@@ -70,7 +70,7 @@ Examples:
 
         self.last_dir = [0,0]
         self.last_piece = ""
-        self.distance_increment = 10
+        self.distance_increment = 10 #Tweak accordingly, since websockets are used no problem in using small values
         
     async def playRequest(self, data):
         """
@@ -288,7 +288,7 @@ Examples:
             if refPiece in pair and movePiece in pair and movePiece != refPiece:
                 
                 #NOTE: logic reworked since snap points are not returned by godot, it must be handled by the agent
-                snap_pos = await self.calculateSquareSnapPost(data["state"]["on_board"][refPiece]["position"])
+                snap_pos = await self.calculateSquareSnapPos(data["state"]["on_board"][refPiece]["position"])
                 
                 if data["state"]["on_board"][refPiece]["rotation"]+180 >= 360:
                     ref_rotation = data["state"]["on_board"][refPiece]["rotation"]+180 - 360
@@ -300,7 +300,7 @@ Examples:
     
         return {"type":"error", "message": "The chosen pieces don't create a Square when used in a Square type move"}
 
-    async def calculateSquareSnapPost(self, refPiecePositionData):
+    async def calculateSquareSnapPos(self, refPiecePositionData):
         
         breakpoint() #DEBUG
         
@@ -322,7 +322,7 @@ Examples:
 
         return [position[0]+vec_x, position[1]+vec_y]
 
-    async def getTriangleResponse(self, data, refPiece, direction, movePiece):
+    async def getTriangleResponse(self, data, refPiece, orientation, movePiece):
         valid_pairs = [["Red", "Cream"], ["Yellow", "Green"]]
 
         if refPiece not in data["state"]["on_board"].keys() and movePiece not in data["state"]["on_board"].keys():
@@ -334,14 +334,17 @@ Examples:
                 #Based on the different rotation values the reference triangle could have, 
                 #pick the correct placement for the triangle
                 
-                #TODO: RE-DEVELOP LIKE THE SQUARE FUNCTION
+                #NOTE: logic reworked since snap points are not returned by godot, it must be handled by the agent
+                snap_pos = await self.calculateTriangleSnapPos(data["state"]["on_board"][refPiece]["position"], orientation)
 
-                if dir == "clockwise":
+                '''
+                if orientation == "clockwise":
                     snap_pos = (data["state"]["on_board"][refPiece]["position"]["TriangleSnap1"]["x_pos"],data["state"]["on_board"][refPiece]["position"]["TriangleSnap1"]["y_pos"])
                     ref_rotation = data["state"]["on_board"][refPiece]["rotation"] + 90
-                elif dir == "anticlockwise":
+                elif orientation == "anticlockwise":
                     snap_pos = (data["state"]["on_board"][refPiece]["position"]["TriangleSnap2"]["x_pos"], data["state"]["on_board"][refPiece]["position"]["TriangleSnap2"]["y_pos"])
                     ref_rotation = data["state"]["on_board"][refPiece]["rotation"] + 270
+                '''
                 
                 if ref_rotation >= 360:
                     ref_rotation = ref_rotation - 360
@@ -349,6 +352,15 @@ Examples:
                 return await self.parsePlayResponse(movePiece,snap_pos,ref_rotation)
             
         return {"type":"error", "message": "The chosen pieces don't create a Triangle when used in a Triangle type move"}
+
+    async def calculateTriangleSnapPos(self, refPiecePositionData, orientation):
+        
+        # clockwise - snap to V1-V2, apply vec with direction of the other edge (V1-V3)
+        # anticlockwise - snap to V1-V3, apply vec with direction of V1-V2
+        
+        breakpoint() #DEBUG
+        
+        pass
 
     async def getRotationResponse(self, data, piece, rot):
         if piece not in data["state"]["on_board"].keys():
@@ -589,7 +601,10 @@ Examples:
             if self.current_play["is_more_than_one_step"] == True and len(data["state"]["on_board"][self.last_piece]["collisions"]) == 0:
                 self.current_play["is_more_than_one_step"] = False
             
-            return await self.parseFinishResponse()
+            return [
+                await self.parseFinishResponse(), 
+                {"type": "chat", "message": self.current_play["reasoning"]}
+            ]
         
     async def chatRequest(self, data):
         board_img = data["board_img"]
