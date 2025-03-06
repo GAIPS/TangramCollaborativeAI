@@ -108,7 +108,7 @@ Examples:
         else:
             response_for_godot = await self.getRelationalResponse(data, self.current_play["move"])
         
-        breakpoint() #DEBUG
+        #breakpoint() #DEBUG
         #if(response_for_godot['type'] != "error"):
         return response_for_godot
         #else:
@@ -295,14 +295,14 @@ Examples:
                 else:
                     ref_rotation= data["state"]["on_board"][refPiece]["rotation"]+180 
                 
-                breakpoint()
+                #breakpoint()
                 return await self.parsePlayResponse(movePiece,snap_pos,ref_rotation)
     
         return {"type":"error", "message": "The chosen pieces don't create a Square when used in a Square type move"}
 
     async def calculateSquareSnapPos(self, refPiecePositionData):
         
-        breakpoint() #DEBUG
+        #breakpoint() #DEBUG
         
         # Extract reference triangle data
         position = await self.extract_floats(refPiecePositionData["position"])  # [x, y]
@@ -358,7 +358,7 @@ Examples:
         # clockwise - snap to V1-V2, apply vec with direction of the other edge (V1-V3)
         # anticlockwise - snap to V1-V3, apply vec with direction of V1-V2
         
-        breakpoint() #DEBUG
+        #breakpoint() #DEBUG
         
         pass
 
