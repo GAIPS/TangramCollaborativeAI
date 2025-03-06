@@ -1,9 +1,13 @@
 import asyncio
 import os
 from openai import OpenAI
+<<<<<<< HEAD:models/relationalAgentGPT.py
 from tangramAgent import TangramAgent
 from datetime import datetime
 import re
+=======
+from models.templates.tangramAgent import TangramAgent
+>>>>>>> 0930c2564f9bef65fed38fdc0a73c92ca72c224c:models/relationalAgent/relationalAgentGPT.py
 
 class CustomAgent(TangramAgent):
 
