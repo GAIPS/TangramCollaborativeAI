@@ -1,99 +1,46 @@
-# Tangram Collaboration platform: Build puzzles with an assistant's help
+# Tangram Collaboration Platform
 
-## Demo available at: https://gaips.github.io/TangramCollaborativeAI/
+The Tangram Collaboration Platform is a research project that combines AI assistance with a turn-based game interface to collaboratively build tangram puzzles. This platform integrates a chat-based interface with a dynamic game area and an external Python AI agent (communicating via WebSockets) to offer an engaging, interactive puzzle-building experience.
 
-Our main goal on this research project was to develop an easy-to-use online turn-based game where people, aided by our AI assistants, could build tangram patterns for any given objective.
+## Table of Contents
 
-The agents are powered by GPT4o and each perform individual tasks:
+- [Overview](#overview)
+- [Features](#features)
+- [AI Agents](#ai-agents)
+- [Setup and Installation](#setup-and-installation)
+- [Developer API](#developer-api)
 
-- **Chatting**: Text communication with human player for strategy planning, explanations, idea suggestion and other topic-related questions.
-- **Playing**: Draws plays to be made on the AI turn by taking into account various context cues (current game state, previous plays and the chat history). The game state is given by images of both the board and the "drawer" (where the pieces yet to be placed are waiting), and a json-like dictionary containing rotation values for each piece (can be toggled to also include piece coordinates).
-- **Action-Converter**: Makes the Playing agent plays into actual actions in the godot platform. Expert in our internal play-conversion grammars.
+## Overview
 
-Below is a video showcasing a normal game interaction:
-[![Video showcasing platform interaction with the objective being the construct a human using tangram pieces](https://cdn-cf-east.streamable.com/image/daqlcb.jpg?Expires=1730069848460&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=Nd60v6~XwzHorozDT0GRwM6wrxfaWcGnerdxlYUxzDITM-bKcUI23qZjNqZpFdomumjVyt72JCL0tmlem6PPQREm-Y0apVoOS0rp1FidTGpZdZxT3tDhISUrcwOKxOxYLxIIIPd4otaOBdHWAXCax58GIjABem9bxU-1Jdjdbg4bpvcmDJzz948l6Ahh2k2RK3PVykvw3Ww15t5wxMD3t033ckPje2WR3Dse7UOAI2lC9docWYwdFVtPVoy5UV1HFyA~jtIlRPEME69pcgNRaVWqDa8HGuVzU2MQybQM0L~tA2HWOd1VsCpwU61mKRY9p3f8hV2kj8WqxpAnGkVKDQ__)](https://streamable.com/daqlcb)
+This platform enables users to collaborate with AI assistants in a turn-based tangram puzzle-solving experience. The platform encourages creative problem-solving and collaboration through an intuitive interface and advanced AI support and provides a platform for experimentation with creative AI agents with visual resources.
 
-# Developer API
+## Features
 
-## Python Server - Godot Game Message Exchange Documentation
+The platform offers the following key features:
 
-All exchanged messages will be in JSON format.
-Currently, only 2 types of JSON messages are expected, each in its own socket channel:
+- **Turn-Based Gameplay:** Alternating moves between human players and AI agents.
+- **Real-Time Chat:** A built-in chatbox for strategy planning, explanations, and idea sharing.
+- **Game State:** A game board and a “drawer” for unplaced pieces, visible to users and AI agents with visual capabilities as well as a coordinate system.
+- **Modular Architecture:** Separation between the game and AI agents to allow for experimentation with different agents, complete with error warning from the platform.
 
-- Playing messages
-- Chat messages
+## AI Agents
 
-## Game to Server
+The current implementation includes two AI agents:
 
-### G->S Playing
-Any Server Agent should be capable of:
- - Responding to "playRequest" and subsequent "playFeedback" requests, by replying with a "play" or "finish" response, the server must send a "finish" when satisfied with the latest "playFeedback"
- - Responding to "chatRequest" requests with a "chat" response
+- **SimpleGPTAgent:** Powered by GPT-4, this agent reviews its own plays to self-correct and optimize its strategies.
+- **RelationalAgentGPT:** Also based on GPT-4, this agent leverages spatial descriptions relative to the current board state to generate informed moves.
 
-| &emsp;&emsp; Field  &emsp;&emsp;     | Type   | Description |
-|------------|--------|-------------|
-| `type`     | string | "playRequest" for the original or "playFeedback" for adjustments|
-| `objective`     | string          | Objective of the current game |
-| `state` | object         | Contains game state info |
-| &emsp; `on_board`    | object          | Info on pieces on the board |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
-| &emsp;&emsp;&emsp; `position` | Vector Array         | (X, Y) coordinates of the center |
-| &emsp;&emsp;&emsp; `vertices` | Array of Vector Array       | (X, Y) coordinates of the each vertice |
-| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
-| &emsp;&emsp;&emsp; `collisions` | Array of Strings        | Names of pieces currently colliding with `{PIECE}` or `BOUNDARY`, if out of bounds |
-| &emsp;`off_board`   | object          |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green")|
-| &emsp;&emsp;&emsp; `vertices` | object       | X,Y coordinates of vertice in relation to center (0,0) |
-| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
-| `board_img`     | base64 image    | Image of the current board |
-| `drawer_img`    | base64 image    | Image of the piece drawer |
-| `timestamp`     | string          | |
+## Setup and Installation
 
-### G->S Chatting
+For instructions on running the current version of the game, please refer to the provided [setup guide](setup.md). 
 
-| &emsp;&emsp; Field &emsp;&emsp;     | Type   | Description |
-|------------|--------|-------------|
-| `type`     | string | "chatRequest"|
-| `objective`     | string          | Objective of the current game |
-| `message` | string | Chat message sent by the player |
-| `state` | object         | Contains game state info |
-| &emsp; `on_board`    | object          | Info on pieces on the board |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
-| &emsp;&emsp;&emsp; `position` | Vector Array         | (X, Y) coordinates of the center |
-| &emsp;&emsp;&emsp; `vertices` | Array of Vector Array       | (X, Y) coordinates of the each vertice |
-| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
-| &emsp;&emsp;&emsp; `collisions` | Array of Strings        | Names of pieces currently colliding with `{PIECE}` or `BOUNDARY`, if out of bounds |
-| &emsp;`off_board`   | object          |
-| &emsp;&emsp; `{PIECE}`   | object[]        | `{PIECE}` is a piece's name and contains its info, one of ("Red", "Cream", "Purple", "Brown", "Blue", "Yellow", "Green") |
-| &emsp;&emsp;&emsp; `vertices` | object       | X,Y coordinates of vertice in relation to center (0,0) |
-| &emsp;&emsp;&emsp; `rotation` | number         | Rotation in degrees |
-| `board_img`     | base64 image    | Image of the current board |
-| `drawer_img`    | base64 image    | Image of the piece drawer |
-| `timestamp`     | string          | |
+A demo of an older version of the platform is available, offering a glimpse of the interactive experience. 
+Please note however that this version is outdated and does not reflect the current state of the project:
 
-## Server to game
+[View Older Demo](https://gaips.github.io/TangramCollaborativeAI/)
 
-### S->G Playing
+[![Older Version Demo Video](https://cdn-cf-east.streamable.com/image/daqlcb.jpg?Expires=1730069848460&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=Nd60v6~XwzHorozDT0GRwM6wrxfaWcGnerdxlYUxzDITM-bKcUI23qZjNqZpFdomumjVyt72JCL0tmlem6PPQREm-Y0apVoOS0rp1FidTGpZdZxT3tDhISUrcwOKxOxYLxIIIPd4otaOBdHWAXCax58GIjABem9bxU-1Jdjdbg4bpvcmDJzz948l6Ahh2k2RK3PVykvw3Ww15t5wxMD3t033ckPje2WR3Dse7UOAI2lC9docWYwdFVtPVoy5UV1HFyA~jtIlRPEME69pcgNRaVWqDa8HGuVzU2MQybQM0L~tA2HWOd1VsCpwU61mKRY9p3f8hV2kj8WqxpAnGkVKDQ__)](https://streamable.com/daqlcb)
 
-| Field       | Type   | Description |
-|------------|--------|-------------|
-| `type`     | string | "play"|
-| `shape`    | string | "Red", "Cream", ... |
-| `position` | Array Float | (X, Y) coordinates to move the shape (center coordinates) |
-| `rotation` | Float | Rotation in degrees |
-| `timestamp`     | string          ||
+## Developer API
 
-### S->G Conclude Playing turn
-
-| Field       | Type   | Description |
-|------------|--------|-------------|
-| `type`     | string | "finish"|
-| `timestamp`     | string          ||
-
-### S->G Chatting
-
-| Field       | Type   | Description |
-|------------|--------|-------------|
-| `type`     | string | "chat"|
-| `message`  | string | Reply message to show to the player|
-| `timestamp`     | string          ||
+Developers looking to create new AI agents can find detailed documentation in the [API.md](API.md) file. This document outlines the developer API, including communication protocols and integration guidelines.

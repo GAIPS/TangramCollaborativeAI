@@ -2,7 +2,7 @@
 
 ## Core Functionality
 
-The agent processes three main types of interactions:
+This agent follows within the following workflow:
 
 1. **Chat Handling**
    - Receives player messages
@@ -12,12 +12,12 @@ The agent processes three main types of interactions:
 2. **Move Generation**
    - Evaluates the current board state via images
    - Considers the objective shape and conversation history
-   - Formulates and executes strategic moves to progress toward the solution
+   - Decides on a move and sends it using gpt4o
 
 3. **Feedback Processing**
    - Receives information about move validity
    - Makes adjustments based on collision detection
-   - Iteratively refines moves until a valid placement is achieved
+   - Iteratively reviews the result with gpt4o and sends adjusted plays until the shape is properly placed.
    - Limits adjustment attempts to prevent endless loops
 
 **Limitations**

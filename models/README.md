@@ -69,12 +69,23 @@ To start the agent server, you **must run the command from the `TangramCollabora
    - `[agent_directory]` with the agent's folder name.
    - `[agent_main_file]` with the main script name (without `.py`).
 
+## Available Agents
+
+There are currently 3 Agents available to use, our most complex agent that utilizes spacial descriptions [relationalAgent](relationalAgent/description.md), our self reflective agent [simpleGPTAgent](simpleAgent/description.md) and a random playing agent corresponding to the default [template behaviour](templates/agentTemplate.py)
+
 ### Example:
 To launch the **RelationalAgent**, use:
 ```bash
 python -m models.relationalAgent.relationalAgentGPT
 ```
-
+To launch the **SimpleGPTAgent**, use:
+```bash
+python -m models.simpleAgent.simpleGPTAgent
+```
+To launch the class default random behaviour, use:
+```bash
+python -m models.templates.agentTemplate
+```
 ---
 
 Now your agent server should be up and running! 
