@@ -489,12 +489,12 @@ func extract_region_from_viewport(pos_x: int, pos_y: int, width: int, height: in
 
 func get_board_screen() -> Image:
 	var image = extract_region_from_viewport(880, 115, 562, 540)
-	image.save_png("res://board.png")
+	#image.save_png("res://board.png")
 	return image
 
 func get_piece_drawer_screen() -> Image:
 	var image = extract_region_from_viewport(1600, 425, 210, 210)
-	image.save_png("res://drawer.png")
+	#image.save_png("res://drawer.png")
 	return image
 
 #####  Input Handling  #####

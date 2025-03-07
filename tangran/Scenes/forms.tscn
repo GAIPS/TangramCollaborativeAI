@@ -1,0 +1,187 @@
+[gd_scene load_steps=4 format=3 uid="uid://bk0ioagvqiyew"]
+
+[ext_resource type="Script" path="res://tangran/Scripts/forms.gd" id="1_513nx"]
+[ext_resource type="Texture2D" uid="uid://buf2cb6sjf30o" path="res://PNG/4853433.jpg" id="1_uyixe"]
+[ext_resource type="Texture2D" uid="uid://bnnpsvr735etn" path="res://PNG/octaButton.png" id="3_vovmk"]
+
+[node name="Forms" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 15.0
+offset_top = -6.0
+offset_right = 55.0
+offset_bottom = 34.0
+script = ExtResource("1_513nx")
+
+[node name="Background" type="Sprite2D" parent="."]
+position = Vector2(561.5, 331)
+scale = Vector2(0.384333, 0.323)
+texture = ExtResource("1_uyixe")
+
+[node name="Question" type="Label" parent="."]
+layout_mode = 0
+offset_left = 335.0
+offset_top = 124.0
+offset_right = 781.0
+offset_bottom = 324.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 50
+text = "Thanks for playing
+"
+
+[node name="Submit" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 445.0
+offset_top = 393.0
+offset_right = 2740.0
+offset_bottom = 1291.0
+scale = Vector2(0.1, 0.1)
+texture_normal = ExtResource("3_vovmk")
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="Submit"]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 50.0
+offset_right = 2270.0
+offset_bottom = 870.0
+theme_override_font_sizes/font_size = 400
+text = "Quit"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="0" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = -15.0
+offset_top = 6.0
+offset_right = 25.0
+offset_bottom = 46.0
+
+[node name="Question" type="Label" parent="0"]
+layout_mode = 0
+offset_left = 367.0
+offset_top = 79.0
+offset_right = 769.0
+offset_bottom = 102.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Thanks for playing
+"
+
+[node name="1" type="Area2D" parent="0"]
+visible = false
+position = Vector2(442, 154)
+scale = Vector2(0.4, 0.4)
+
+[node name="Active" type="Polygon2D" parent="0/1"]
+visible = false
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.854902, 0.701961, 0.12549, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="InActive" type="Polygon2D" parent="0/1"]
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.396889, 0.396889, 0.396889, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="0/1"]
+visible = false
+polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
+
+[node name="2" type="Area2D" parent="0"]
+visible = false
+position = Vector2(505, 154)
+scale = Vector2(0.4, 0.4)
+
+[node name="Active" type="Polygon2D" parent="0/2"]
+visible = false
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.854902, 0.701961, 0.12549, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="InActive" type="Polygon2D" parent="0/2"]
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.396078, 0.396078, 0.396078, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="0/2"]
+visible = false
+polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
+
+[node name="3" type="Area2D" parent="0"]
+visible = false
+position = Vector2(566, 154)
+scale = Vector2(0.4, 0.4)
+
+[node name="Active" type="Polygon2D" parent="0/3"]
+visible = false
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.854902, 0.701961, 0.12549, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="InActive" type="Polygon2D" parent="0/3"]
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.396078, 0.396078, 0.396078, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="0/3"]
+visible = false
+polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
+
+[node name="4" type="Area2D" parent="0"]
+visible = false
+position = Vector2(628, 154)
+scale = Vector2(0.4, 0.4)
+
+[node name="Active" type="Polygon2D" parent="0/4"]
+visible = false
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.854902, 0.701961, 0.12549, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="InActive" type="Polygon2D" parent="0/4"]
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.396078, 0.396078, 0.396078, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="0/4"]
+visible = false
+polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
+
+[node name="5" type="Area2D" parent="0"]
+visible = false
+position = Vector2(686, 154)
+scale = Vector2(0.4, 0.4)
+
+[node name="Active" type="Polygon2D" parent="0/5"]
+visible = false
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.854902, 0.701961, 0.12549, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="InActive" type="Polygon2D" parent="0/5"]
+position = Vector2(24, 0)
+rotation = 0.785397
+color = Color(0.396078, 0.396078, 0.396078, 1)
+polygon = PackedVector2Array(-80.61, -57.2758, -62.9324, -18.3849, -92.9845, 11.6671, -47.0226, 15.2028, -25.8094, 57.6292, -16.9705, 9.89948, 36.0625, -4.24261, -6.36389, -25.4558, -6.36377, -74.9534, -39.9514, -41.3659)
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="0/5"]
+visible = false
+polygon = PackedVector2Array(7.5, -97.5, 25, -57.5, 72.5, -57.5, 37.5, -22.5, 52.5, 22.5, 5, -5, -35, 22.5, -20, -22.5, -50, -57.5, -7.5, -57.5)
+
+[connection signal="pressed" from="Submit" to="." method="_on_Submit"]
+[connection signal="input_event" from="0/1" to="." method="_on_rate_click" binds= [0, 1]]
+[connection signal="input_event" from="0/2" to="." method="_on_rate_click" binds= [0, 2]]
+[connection signal="input_event" from="0/3" to="." method="_on_rate_click" binds= [0, 3]]
+[connection signal="input_event" from="0/4" to="." method="_on_rate_click" binds= [0, 4]]
+[connection signal="input_event" from="0/5" to="." method="_on_rate_click" binds= [0, 5]]
