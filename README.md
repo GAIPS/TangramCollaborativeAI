@@ -45,8 +45,6 @@ Please note however that this version is outdated and does not reflect the curre
 ### Relational Agent 
 **missing video**
 
-[View Older Demo](https://gaips.github.io/TangramCollaborativeAI/)
-
 ## Developer API
 
 Developers looking to create new AI agents can find detailed documentation in the [API.md](API.md) file. This document outlines the developer API, including communication protocols and integration guidelines.
