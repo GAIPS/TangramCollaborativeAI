@@ -69,7 +69,7 @@ class PlayAgent():
             "role": "system",
             "content": (
                 """You and the human user are playing a tangram game, arranging pieces to form an objective shape.
-                You will be provided with previous messages to consider past discussions and decisions. as well as a game state and an image of the board. You should ananlyse these to make a logical play move.
+                You will be provided with previous messages to consider past discussions and decisions. as well as a game state and an image of the board. You should ananlyse these to make a logical play move, if you previously said you would do a certain move and its not yet been done, you should perform it.
                 Try to undestand what the parts already on the board are representing with the image and how they can be used to form the objective shape.
                 Your answer should ideally say what the piece is meant to represent and where you are trying to place it in.
                 You can move pieces both on and off the board as well as rotating them to provide better parts.
@@ -134,7 +134,7 @@ class PlayAgent():
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=self.chat_agent.chatLog[-6:] + context,
+                messages=self.chat_agent.chatLog + context,
                 #temperature=self.temperature,
                 #max_tokens=self.max_tokens
             )
@@ -145,7 +145,7 @@ class PlayAgent():
         assistant_content = response.choices[0].message.content
         # Update last_play_context for feedback (retain context without altering feedback later)
         self.last_play_context = [{"role": "assistant", "content": "The agent said: " + assistant_content}]
-        self.chat_agent.chatLog.append({"role": "assistant", "content": assistant_content})
+        self.chat_agent.chatLog.append({"role": "assistant", "content": assistant_content.split("PLAY")[0].strip()})
         return assistant_content
 
 class FeedbackAgent():
@@ -176,7 +176,7 @@ class FeedbackAgent():
 
                 - For the **format**: `PLAY {piece}, {rotation}, {x}, {y}`
                 - {rotation} = Rotation in degrees (0, 45, 90, ..., 315)
-                - {x}, {y} = Float coordinates from 5 to 95 positive only (100,100 is the top-right corner, so lower values are closer to the bottom and left respectively)    
+                - {x}, {y} = Float coordinates from 5 to 95 positive only (100,100 is the top-right corner, so lower values are closer to the bottom and left respectively), you can think of coordenates as percentages of the board aswel 
 
                 **Stopping Condition:**
                 - If there is **no overlap** and the move is correct, reply with exactly: `FINISH` (no extra words).
@@ -191,6 +191,7 @@ class FeedbackAgent():
                 
                 **Required Output Format:**
                 output for adjustments:
+                {logic}
                 PLAY {piece}, {rotation}, {x}, {y}
                 output to end:
                 "FINISH"
@@ -198,23 +199,59 @@ class FeedbackAgent():
                 **Example Adjustments:**
                 These are sequences of adjustments that could be made to a move, never send more than 1 line at a time.
                 In a case where the piece is close but maybe slightly overlapping or slightly off the desired location:
-                PLAY Red, 0, 48, 50
+
+                The piece seems to be slightly overlaping with cream, the original prompt wanted it bellow cream and the overlap is only minor on top so we should lower the y coordinate
+                PLAY Red, 0, 40, 50
+
+                Red is now too low, the request wanted it just bellow, we should move it up slightly while being careful not to overdo it, 5 units should be enough so 40 + 5 = 45
                 PLAY Red, 0, 45, 50
+
+                Red is overlapping by a few pixels at the top, again the original message wanted it bellow so lets lower it just a bit again.
                 PLAY Red, 0, 44, 51
-                PLAY Red, 0, 48, 50
+
+                The piece seems to now be correctly placed and not overlapping. i think we are done.
                 FINISH
+
+
                 In a case where the piece is really far from the desired location:
-                PLAY Red, 0, 80, 20
-                PLAY Red, 0, 20, 80
-                PLAY Red, 0, 40, 40
-                PLAY Red, 0, 38, 40
-                PLAY Red, 0, 37, 40
+
+                The agent wanted green near purple to the right, currently i can see in the image that the pieces are on opposite parts of the board, purple is at 15, 15 according to the game state, so lets move green closer to purple but to its right.
+                PLAY Green, 0, 40, 15
+
+                From the board i can see that while theres no overlapping, the piece is too far away, lets bring it closer to the left
+                PLAY Green, 0, 30, 15
+
+                Green is now overlapping with yellow, moving it slightly right would fix this while staying as loyal to the agents request as possible lets go with 3 units so 30 + 3 = 33
+                PLAY Green, 0, 33, 15
+                
+                The piece seems correctly placed according to the request.
                 FINISH
+
                 In a case the rotation didnt match the request and 0 produces the best result:
-                PLAY Red, 45, 30, 30
-                PLAY Red, 90, 30, 30
-                PLAY Red, 0, 30, 30
+
+                Green is placed in requested location, however the current rotation doesnt make it look like a body as requested, lets try rotating it 45 degrees.
+                PLAY Green, 45, 30, 30
+
+                Green is still placed in requested location, however the current rotation is still not making it look like a body as requested by the agent, lets try rotating it another 45 degrees, thus 45 + 45 = 90.
+                PLAY Green, 90, 30, 30
+                
+                Green now looks like a body and is in the correct are, since it now matches what the agent asked for we are done adjusting.
                 FINISH
+
+                In a case where the piece should be on top but is overlapping:
+
+                Yellow should be on top of blue, but its currently overlapping with it, from the image the overlap seems small, it was placed at y 45 before so lets decrease 5 units making 40.
+                PLAY Yellow, 90, 25, 40
+
+                Looking at the board image the previous adjustment lowered it, since we want it on top this was a mistake, lets revert it back to 45 as it was before and add 5 to properly raise it and avoid overlapping, thus 45 + 5 = 50.
+                PLAY Yellow, 90, 25, 50
+
+                Yellow now seems in the correct spot.
+                FINISH
+
+                **Reminder**
+                to move left decrease the X coordinate so calculate the current X - amount, to move right increase the X coordinate so calculate the current X + amount
+                to move down decrease the Y coordinate so calculate the current Y - amount, to move Up increase the Y coordinate so calculate the current Y + amount
                 """
             )
         }
@@ -283,10 +320,8 @@ class CustomAgent(TangramAgent):
         play_response = await self.play_agent.generatePlay(
             data["objective"],
             data["state"],
-            base64.b64encode(await self.getBoardImage()).decode("utf-8"),
-            base64.b64encode(await self.getDrawerImage()).decode("utf-8")
-            #data["board_img"],
-            #data["drawer_img"]
+            data["board_img"],
+            data["drawer_img"]
         )
         print(play_response)
         a = await self.parsePlayResponse(play_response, data)
@@ -295,7 +330,7 @@ class CustomAgent(TangramAgent):
 
     async def playFeedback(self, data):
         # Get adjustments based on recent context (pass full feedback data)
-        adjusted_play = await self.feedback_agent.adjustPlay(data["state"], base64.b64encode(await self.getBoardImage()).decode("utf-8"))
+        adjusted_play = await self.feedback_agent.adjustPlay(data["state"], data["board_img"])
         return await self.parsePlayResponse(adjusted_play, data)
 
     async def chatRequest(self, data):
@@ -307,8 +342,6 @@ class CustomAgent(TangramAgent):
             data["objective"],
             data["state"],
             data["message"],
-            #base64.b64encode(await self.getBoardImage()).decode("utf-8"),
-            #base64.b64encode(await self.getDrawerImage()).decode("utf-8")
             data["board_img"],
             data["drawer_img"]
         )
@@ -324,6 +357,7 @@ class CustomAgent(TangramAgent):
         
         try:
             # Split into move and message parts
+            print(response.split("PLAY")[0].strip())
             response = response.split("PLAY")[1].strip()
                     
             lines = response.split("|", 1)

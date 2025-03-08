@@ -138,8 +138,8 @@ func _process(_delta):
 			color(FINISH_BUTTON, false)
 			color(UNDO_BUTTON, false)
 
-		if hasRequest:
-			get_node(END_TURN_BUTTON).modulate = Color8(145, 145, 145, 255)
+		if hasRequest or movedPiece == "":
+			color(END_TURN_BUTTON, false)
 
 		if turns < 3:
 			color(FINISH_BUTTON, false)
@@ -286,14 +286,13 @@ func wait(seconds: float) -> void:
 func finishPlayRequest():
 	turns += 1
 	if movedPiece in shapes:
-		if shapes[movedPiece]["onBoard"]:
-			get_node(movedPiece).updateOverlaps()
-			if len(get_node(movedPiece).overlaps) > 0:
-				$"Arena/ChatBox/AI_Chat".add_message("Sorry I had some trouble playing, I'll retry next round", true)
-				get_node(movedPiece).position = preMovePos
-				get_node(movedPiece).rotation = preMoveRot
-				setPlayerTurn()
-				return
+		get_node(movedPiece).updateOverlaps()
+		if len(get_node(movedPiece).overlaps) > 0:
+			$"Arena/ChatBox/AI_Chat".add_message("Sorry I had some trouble playing, I'll retry next round", true)
+			get_node(movedPiece).position = preMovePos
+			get_node(movedPiece).rotation = preMoveRot
+			setPlayerTurn()
+			return
 	setPlayerTurn()
 
 #####  Game State #####

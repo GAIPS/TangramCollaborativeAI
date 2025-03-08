@@ -9,7 +9,6 @@ func _ready():
 	drawerPosition = global_position
 
 func _process(_delta):
-	
 	'''
 	var overlapping_areas = get_overlapping_areas().find(get_node("../Arena/ArenaBoard"))
 	if !(overlapping_areas == -1):
