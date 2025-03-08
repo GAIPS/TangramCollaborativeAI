@@ -37,9 +37,15 @@ For instructions on running the current version of the game, please refer to the
 A demo of an older version of the platform is available, offering a glimpse of the interactive experience. 
 Please note however that this version is outdated and does not reflect the current state of the project:
 
-[View Older Demo](https://gaips.github.io/TangramCollaborativeAI/)
+## Video Showcases
 
-[![Older Version Demo Video](https://cdn-cf-east.streamable.com/image/daqlcb.jpg?Expires=1730069848460&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=Nd60v6~XwzHorozDT0GRwM6wrxfaWcGnerdxlYUxzDITM-bKcUI23qZjNqZpFdomumjVyt72JCL0tmlem6PPQREm-Y0apVoOS0rp1FidTGpZdZxT3tDhISUrcwOKxOxYLxIIIPd4otaOBdHWAXCax58GIjABem9bxU-1Jdjdbg4bpvcmDJzz948l6Ahh2k2RK3PVykvw3Ww15t5wxMD3t033ckPje2WR3Dse7UOAI2lC9docWYwdFVtPVoy5UV1HFyA~jtIlRPEME69pcgNRaVWqDa8HGuVzU2MQybQM0L~tA2HWOd1VsCpwU61mKRY9p3f8hV2kj8WqxpAnGkVKDQ__)](https://streamable.com/daqlcb)
+### Iterative Simple Agent 
+[![Demo Video](https://cdn-cf-east.streamable.com/image/qjdptl.jpg)](https://streamable.com/qjdptl)
+
+### Relational Agent 
+**missing video**
+
+[View Older Demo](https://gaips.github.io/TangramCollaborativeAI/)
 
 ## Developer API
 

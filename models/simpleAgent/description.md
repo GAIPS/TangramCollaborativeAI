@@ -1,5 +1,7 @@
 # Simple Agent
 
+This agent expects an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
+
 ## Core Functionality
 
 This agent follows within the following workflow:
@@ -19,6 +21,4 @@ This agent follows within the following workflow:
    - Makes adjustments based on collision detection
    - Iteratively reviews the result with gpt4o and sends adjusted plays until the shape is properly placed.
    - Limits adjustment attempts to prevent endless loops
-
-**Limitations**
-- The agent can make up to 10 adjustment attempts before forcing a finish
+   - The agent can make up to 10 adjustment attempts before forcing a finish

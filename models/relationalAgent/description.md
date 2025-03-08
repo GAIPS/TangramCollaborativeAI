@@ -1,6 +1,7 @@
 # Relational Agent
 
 This agent implements a relational move strategy for playing tangram puzzles. Instead of using coordinates, moves are defined in relation to other pieces already on the board.
+This agent expects an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
 
 ## Workflow
 
