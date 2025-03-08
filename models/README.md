@@ -58,7 +58,7 @@ pip list
 ---
 
 
-## 🔹 Step 3: Launch the Agent Server
+## 🔹 Step 4: Launch the Agent Server
 
 To start the agent server, you **must run the command from the `TangramCollaborativeAI` directory** (one level above `models`).
 
