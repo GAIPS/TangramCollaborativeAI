@@ -53,7 +53,7 @@ pip list
 
 ## 🔹 Step 3: Environment Variables
 
-###The current implemented agents simpleGPTAgent and relationalAgentGPT expect an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
+### The current implemented agents simpleGPTAgent and relationalAgentGPT expect an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
 
 ---
 
