@@ -53,12 +53,12 @@ pip list
 
 ## 🔹 Step 3: Environment Variables
 
-###The current implemented agents simpleGPTAgent and relationalAgentGPT expect an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
+### The current implemented agents simpleGPTAgent and relationalAgentGPT expect an "OPENAI_API_KEY" Environment Variable to exist in the system, and to contain contain a valid openAI key.
 
 ---
 
 
-## 🔹 Step 3: Launch the Agent Server
+## 🔹 Step 4: Launch the Agent Server
 
 To start the agent server, you **must run the command from the `TangramCollaborativeAI` directory** (one level above `models`).
 
