@@ -415,7 +415,7 @@ Examples:
         if data["state"]["on_board"].get(piece_to_move) == None:
             piece_to_move_location = "off_board"
 
-        breakpoint()
+        #breakpoint()
         # There is an edge case where multiple pieces have the same vector direction, we must find a common starting coordinate and apply the vector
         is_all_same_direction = True
         first_direction = relational_play_parts[1]
@@ -444,7 +444,7 @@ Examples:
         rotationDegrees = (int(relational_play_parts[pairs_iterator])) + data["state"][piece_to_move_location][piece_to_move]["rotation"]
         
         
-        breakpoint() #-- DEBUG
+        #breakpoint() #-- DEBUG
 
         # CASE WHENEVER MORE THAN 1 REFERENCE PIECE IS USED, BUT ALL TOWARDS THE SAME DIRECTION
         if len(direction_and_related_piece.keys()) > 1 and is_all_same_direction:
