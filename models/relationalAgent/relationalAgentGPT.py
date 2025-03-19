@@ -60,12 +60,12 @@ Examples:
         self.direction_vectors = {
                 "right": [1, 0],
                 "left": [-1, 0],
-                "top": [0, -1],
-                "bottom": [0, 1],
-                "top-right": [1, -1],
-                "top-left": [-1, -1],
-                "bottom-right": [1, 1],
-                "bottom-left": [-1, 1]
+                "top": [0, 1],
+                "bottom": [0, -1],
+                "top-right": [1, 1],
+                "top-left": [-1, 1],
+                "bottom-right": [1, -1],
+                "bottom-left": [-1, -1]
         }
 
         self.last_dir = [0,0]
@@ -86,6 +86,9 @@ Examples:
         #TODO: add exceptions to handle GPT returning errors, NOTE: PROTOCOL DOESN'T ACCOUNT FOR ERRORS HERE YET, MUST FIX IT
         
         response_GPT_play_extensive_query =  await self.send_GPT_play_extensive_query(data)
+
+        # print("DEBUG - EXTENSIVE PLAY:" + response_GPT_play_extensive_query)
+
         response_move_extraction = await self.send_GPT_move_extraction_query(response_GPT_play_extensive_query)
         response_reasoning_extraction = await self.send_GPT_reasoning_extraction_query(response_GPT_play_extensive_query)
 
@@ -99,8 +102,8 @@ Examples:
 
         if self.current_play["move"].startswith("Square"):
             response_for_godot = await self.getSquareResponse(data, move_data[1], move_data[2])
-        elif self.current_play["move"].startswith("Triangle"):
-            response_for_godot = await self.getTriangleResponse(data, move_data[1], move_data[2], move_data[3])
+        #elif self.current_play["move"].startswith("Triangle"): #REMOVED
+        #    response_for_godot = await self.getTriangleResponse(data, move_data[1], move_data[2], move_data[3]) #REMOVED
         elif self.current_play["move"].startswith("Finish"):
             pass # Currently not supported
         elif self.current_play["move"].startswith("Rotate"):
@@ -118,7 +121,7 @@ Examples:
     async def send_GPT_play_extensive_query(self, data):
         
         # Add the previous chat history before the query
-        messages = self.chatLog[len(self.chatLog) - self.historyLimit: len(self.chatLog)]
+        messages = self.chatLog[max(0,len(self.chatLog) - self.historyLimit):]
 
 
         play_extensive_query_instructions = f'''
@@ -128,14 +131,14 @@ Examples:
 
 		NEVER use a piece in the drawer as a reference in any of the following
 		
-		You will receive the current game state in an image format, an image showing the state of the piece drawer, a dictionary specifying the current rotation value of each piece, the full chat history between you (you're the AI) and the player 
+		You will receive the current game state in an image format, an image showing the state of the piece drawer, a dictionary specifying the current rotation value of each piece, the full chat history between you (you're the AI) and the player (available at the beginning of this prompt)
 		and an history of all played moves, by the player and the AI.  
 
 		After analysing the given image of the state you should suggest your moves in one of the following ways:
 		
 		You can describe a relative position, done in relation to pieces already placed on the board by indicating which side 
 		(right, left, top, bottom, top-right, top-left, bottom-right, bottom-left) of them the piece to be moved should be placed. 
-		A move can be done in relation to a reference piece or more.
+		A move can be done in relation to a single reference piece (ex: Blue right Purple) or more (ex: Blue right Purple top Red).
 		You can rotate a piece rotate in a move, always try to describe move rotation in terms of explicit degrees to add, 
 		avoid using phrases which require deducting or interpreting the rotation values.
 		Example: Place Red to the left of Cream with a 90º rotation.
@@ -146,12 +149,6 @@ Examples:
 		Whenever suggesting a square creation move, you need to say \"Form a Square\" and then the triangle that needs to be placed followed by the referenced triangle.
 		Example: Form a Square by putting Cream next to Red (note, here red the one that MUST be already on the board, we would be moving cream, you can make this more clear in your replies)
 		
-		You can suggest to make a larger Triangle by using a pair of smaller triangles. One of them must already be on the board for the move to be valid.
-		Since this move leads to two possible positions and may be applied on different orientations, you must indicate if the triangle is placed clockwise or anticlockwise from the reference triangle.
-		The triangle pair must also consist of Cream and Red OR Green and Yellow.
-		Whenever suggesting a triangle creation move, you need to say \"Form a Triangle by placing\" and then the triangle piece name to be placed, followed by clockwise or anticlockwise, and then the reference triangle piece name.
-		Example: Form a Triangle by placing Cream anticlockwise from Red
-
 		You can simply rotate a piece without moving it, \"Just rotate\" and then the piece and the rotation you intend for it to have.
 		Example: Just rotate Blue 90
 
@@ -165,6 +162,14 @@ Examples:
 		User commands prevail above AI commands, in case they conflict, as well as newest messages above older ones. 
 		Following the chat instructions and considering the state of the game, 
 		list all moves that should be done in order to create {data["objective"]}, providing explanations for each one.
+        '''
+
+        ''' REMOVED
+		You can suggest to make a larger Triangle by using a pair of smaller triangles. One of them must already be on the board for the move to be valid.
+		Since this move leads to two possible positions and may be applied on different orientations, you must indicate if the triangle is placed clockwise or anticlockwise from the reference triangle.
+		The triangle pair must also consist of Cream and Red OR Green and Yellow.
+		Whenever suggesting a triangle creation move, you need to say \"Form a Triangle by placing\" and then the triangle piece name to be placed, followed by clockwise or anticlockwise, and then the reference triangle piece name.
+		Example: Form a Triangle by placing Cream anticlockwise from Red
         '''
 
         # Add the System messages, gameLogic + Explanation on how to find the next play based on info provided
@@ -191,6 +196,8 @@ Examples:
 			{"type": "text", "text": "Give me a list of the moves to play in order to create " + data["objective"]}
 		]
 	})
+        
+        # print("DEBUG - THIS IS WHAT IS BEING SENT TO GPT ON EXTENSIVE PLAY QUERY: " + str(messages))
 
         response = self.client.chat.completions.create(
             model = self.model,
@@ -200,6 +207,8 @@ Examples:
         )
         
         return response.choices[0].message.content
+
+    debug_num = 0
 
     async def send_GPT_move_extraction_query(self, response_GPT_play_extensive_query):
         messages = []
@@ -212,9 +221,6 @@ Examples:
 			This format is the default one, except when special moves for triangle and square creation are suggested.
 			- Square [reference piece] [piece to move]
 			This format is only used when a suggested move says something along the lines of \"Form a Square with\" and then two triangle pieces names, note which one is being moved and which one is already in place.
-			- Triangle [reference piece] [direction] [piece to move]
-			Where direction is either clockwise or anticlockwise.
-			This format is only used when a suggested move says something along the lines of \"Form a triangle with\" and then two triangle pieces names and a direction, note which one is being moved and which one is already in place.
 			- Finish: [Message]
 			This format is only used when a suggested move says something along the lines of \"Looks finished\" or something of the type, message should be a friendly message to the human.
 			- Rotate [piece to rotate] [rotation]
@@ -223,10 +229,18 @@ Examples:
 		For example (for each possible grammar): 
 		Cream, right, Red, 90, 0, 0. 
 		Square Cream Red
-		Triangle Cream clockwise Red
 		
 		You should ONLY RESPOND WITH THE MOVE IN ONE OF THE THREE GRAMMAR FORMATS. 
         """
+		
+        ''' Removed - Not really used and hard to implement oustide godot environment
+
+		    - Triangle [reference piece] [direction] [piece to move]
+			Where direction is either clockwise or anticlockwise.
+			This format is only used when a suggested move says something along the lines of \"Form a triangle with\" and then two triangle pieces names and a direction, note which one is being moved and which one is already in place.
+
+        Triangle Cream clockwise Red
+        '''
 
         # System messages
         messages.append({
@@ -249,8 +263,9 @@ Examples:
             max_tokens = self.max_tokens
         )
         
-        return response.choices[0].message.content
         
+        return response.choices[0].message.content
+
 
 
     async def send_GPT_reasoning_extraction_query(self, response_GPT_play_extensive_query):
@@ -258,7 +273,7 @@ Examples:
 
         messages.append({
             "role": "system",
-            "content": "You are currently extracting ONLY the reasoning behind the first move from a list of suggested moves. No need for any text beside the reasoning in the response you'll provide."
+            "content": "You are currently extracting ONLY the reasoning behind the first move from a list of suggested moves. No need for any text beside the reasoning in the response you'll provide. Try to summarise the reasoning into non-technical terms when doing so."
             })
 
         messages.append({
@@ -322,6 +337,7 @@ Examples:
 
         return [position[0]+vec_x, position[1]+vec_y]
 
+    '''
     async def getTriangleResponse(self, data, refPiece, orientation, movePiece):
         valid_pairs = [["Red", "Cream"], ["Yellow", "Green"]]
 
@@ -334,17 +350,15 @@ Examples:
                 #Based on the different rotation values the reference triangle could have, 
                 #pick the correct placement for the triangle
                 
+                #breakpoint()
+
                 #NOTE: logic reworked since snap points are not returned by godot, it must be handled by the agent
                 snap_pos = await self.calculateTriangleSnapPos(data["state"]["on_board"][refPiece]["position"], orientation)
 
-                '''
                 if orientation == "clockwise":
-                    snap_pos = (data["state"]["on_board"][refPiece]["position"]["TriangleSnap1"]["x_pos"],data["state"]["on_board"][refPiece]["position"]["TriangleSnap1"]["y_pos"])
                     ref_rotation = data["state"]["on_board"][refPiece]["rotation"] + 90
                 elif orientation == "anticlockwise":
-                    snap_pos = (data["state"]["on_board"][refPiece]["position"]["TriangleSnap2"]["x_pos"], data["state"]["on_board"][refPiece]["position"]["TriangleSnap2"]["y_pos"])
                     ref_rotation = data["state"]["on_board"][refPiece]["rotation"] + 270
-                '''
                 
                 if ref_rotation >= 360:
                     ref_rotation = ref_rotation - 360
@@ -355,12 +369,27 @@ Examples:
 
     async def calculateTriangleSnapPos(self, refPiecePositionData, orientation):
         
+        
+        # Extract reference triangle data
+        position = await self.extract_floats(refPiecePositionData["position"])  # [x, y]
+        vertices = [ await self.extract_floats(x) for x in refPiecePositionData["vertices"]]  # [[x1, y1], [x2, y2], [x3, y3]]
+
         # clockwise - snap to V1-V2, apply vec with direction of the other edge (V1-V3)
         # anticlockwise - snap to V1-V3, apply vec with direction of V1-V2
-        
-        #breakpoint() #DEBUG
-        
-        pass
+
+        vec_x = 0
+        vec_y = 0
+
+        if orientation == "clockwise":
+            vec_x = (vertices[2][0] + vertices[0][0])*0.25 #ADJUST VALUE FOR BETTER PERFORMANCE
+            vec_y = (vertices[2][1] - vertices[0][1])*0.25
+
+        elif orientation == "anticlockwise":
+            vec_x = (vertices[1][0] - vertices[0][0])*0.25 #ADJUST VALUE FOR BETTER PERFORMANCE
+            vec_y = (vertices[1][1] - vertices[0][1])*0.25
+
+        return [position[0]+vec_x,position[1]+vec_y]
+    '''
 
     async def getRotationResponse(self, data, piece, rot):
         if piece not in data["state"]["on_board"].keys():
@@ -372,6 +401,9 @@ Examples:
         return await self.parsePlayResponse(piece,pos,rot)
 
     async def getRelationalResponse(self,data,move):
+
+        # print('DEBUG: Suggested play is:' + move)
+
         relational_play_parts = move.split(", ")
         num_direction_piece_pairs = ((len(relational_play_parts) - 6) / 2) + 1 # 4 fields are mandatory to be filled. 1 pair always exists for the mandatory direction-piece pair
 
@@ -383,6 +415,7 @@ Examples:
         if data["state"]["on_board"].get(piece_to_move) == None:
             piece_to_move_location = "off_board"
 
+        breakpoint()
         # There is an edge case where multiple pieces have the same vector direction, we must find a common starting coordinate and apply the vector
         is_all_same_direction = True
         first_direction = relational_play_parts[1]
@@ -411,24 +444,25 @@ Examples:
         rotationDegrees = (int(relational_play_parts[pairs_iterator])) + data["state"][piece_to_move_location][piece_to_move]["rotation"]
         
         
-        #breakpoint() -- DEBUG
+        breakpoint() #-- DEBUG
 
         # CASE WHENEVER MORE THAN 1 REFERENCE PIECE IS USED, BUT ALL TOWARDS THE SAME DIRECTION
         if len(direction_and_related_piece.keys()) > 1 and is_all_same_direction:
+
             self.current_play["is_more_than_one_step"] = True
-            piecePostMoveCoordinates = self.find_starting_coordinate_from_parallel_directions(data, first_direction, direction_and_related_piece)
+            piecePostMoveCoordinates = await self.find_starting_coordinate_from_parallel_directions(data["state"], first_direction, direction_and_related_piece)
             self.last_dir = first_direction
             self.last_piece = piece_to_move
             return await self.parsePlayResponse(piece_to_move,piecePostMoveCoordinates,rotationDegrees)
 
         # CASE WHENEVER MORE THAN 1 REFERENCE PIECE IS USED
         elif len(direction_and_related_piece.keys()) > 1:
-            piecePostMoveCoordinates = self.findCoordinatesMoreThanOneRelated(piece_to_move, piece_to_move_location, direction_and_related_piece) 
+            piecePostMoveCoordinates = await self.findCoordinatesMoreThanOneRelated(data["state"],piece_to_move, piece_to_move_location, direction_and_related_piece) 
             
-            '''
-            if(piecePreMoveCoordinates == piecePostMoveCoordinates):
+            
+            if(piecePostMoveCoordinates == -1):
                 return {"type":"error", "message": "coordinates of direction vectors applied on related pieces will never converge"}
-            '''
+            
             
             self.last_dir = first_direction
             self.last_piece = piece_to_move
@@ -461,8 +495,11 @@ Examples:
         
         # Iterate over each piece in the dictionary
         for piece in direction_and_related_piece.keys():
-            coordinates_x.append(float(game_state["on_board"][piece]["position"]["position"][0]))
-            coordinates_y.append(float(game_state["on_board"][piece]["position"]["position"][1]))
+
+            piece_coordinates = await self.extract_floats(game_state["on_board"][piece]["position"]["position"])
+
+            coordinates_x.append(piece_coordinates[0])
+            coordinates_y.append(piece_coordinates[1])
         
         # Get the highest and lowest coordinates in x and y
         highest_x = max(coordinates_x)
@@ -525,7 +562,7 @@ Examples:
             return None  # Not enough lines to find an intersection
         
         # Find the initial intersection between the first two points and directions
-        intersection = self.find_intersection(points[0], directions[0], points[1], directions[1])
+        intersection = await self.find_intersection(points[0], directions[0], points[1], directions[1])
         
         # If no intersection is found between the first two, return None
         if intersection is None:
@@ -533,7 +570,7 @@ Examples:
         
         # Iterate over the remaining points and directions
         for i in range(2, len(points)):
-            new_intersection = self.find_intersection(intersection, directions[0], points[i], directions[i])
+            new_intersection = await self.find_intersection(intersection, directions[0], points[i], directions[i])
             
             # If no intersection is found with the current point, return None
             if new_intersection is None:
@@ -545,10 +582,7 @@ Examples:
         # Return the final intersection point
         return intersection
 
-    def findCoordinatesMoreThanOneRelated(self, game_state, pieceToMove, pieceToMoveLocation, direction_and_related_piece):
-
-        # Get the current piece coordinates
-        current_piece_coordinates = game_state[pieceToMoveLocation][pieceToMove]["position"]["position"]
+    async def findCoordinatesMoreThanOneRelated(self, game_state, pieceToMove, pieceToMoveLocation, direction_and_related_piece):
         
         related_pieces_coordinates = []
         directions = []
@@ -558,14 +592,14 @@ Examples:
             # Get the direction vector using the direction (assuming direction_vectors is defined elsewhere)
             directions.append(self.direction_vectors[direction])
             
-            related_pieces_coordinates.append(float(game_state["on_board"][piece]["position"]["position"]))
+            related_pieces_coordinates.append(await self.extract_floats(game_state["on_board"][piece]["position"]["position"]))
         
         # Find the common intersection of the coordinates and directions
-        final_coordinate = self.find_common_intersection(related_pieces_coordinates, directions)
+        final_coordinate = await self.find_common_intersection(related_pieces_coordinates, directions)
         
         # If no convergence, return the current piece coordinates
         if final_coordinate is None:
-            return current_piece_coordinates
+            return -1
         else:
             return final_coordinate
 
