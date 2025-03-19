@@ -99,7 +99,11 @@ func _process(_delta):
 
 						elif message_type == "finish":
 							finishPlayRequest()
-
+						
+						elif message_type == "error":
+							$"Arena/ChatBox/AI_Chat".add_message("An error occured while I was playing: " + data["message"], true)
+							finishPlayRequest()
+								
 						elif message_type == "chat":
 							if not data.has("message"):
 								sendError("Error: Missing message field in received JSON")
