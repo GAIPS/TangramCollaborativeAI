@@ -40,10 +40,10 @@ Please note however that this version is outdated and does not reflect the curre
 ## Video Showcases
 
 ### Iterative Simple Agent 
-[![Demo Video](https://cdn-cf-east.streamable.com/image/qjdptl.jpg)](https://streamable.com/qjdptl)
+https://github.com/user-attachments/assets/272081eb-bdcf-4d94-99ad-ee705419f2d6
 
 ### Relational Agent 
-[![Demo Video](https://cdn-cf-east.streamable.com/image/k4qqh2.jpg?Expires=1742606064925&Key-Pair-Id=APKAIEYUVEN4EVB2OKEQ&Signature=bEe6~QFUrKJRmSKOC7NZ2qvINyuDQq8ECaN42Q4Uz1ks6aU6T1wprRyN7d5KVOlRC37dS9gwBTb8Fvb2aqLXk1Zuh9BbZv-dFwKOqQFtWKHME3qxy1RCEtZh8eYMaB4WekOU8RlihPCi6htf45UHeIKdB7~yBRoGiJDdzUbQOvh2uxoxNQcvJcgWyQPWrqz1c8Fm0FzroQbA2NAmVdsUyCp~hVZwUTrtNWdhMiKiNk6DwKc1ksBFLz6Y8JMKlvzvmGbsWEIzzydL5DVmO4xOl4TsJ054AzNCtVa5b7FPLgdFSEBIoC-4jG2SbDu9wDJ8nA8vGSiTgAXAoiABpV88tw__)](https://streamable.com/k4qqh2)
+https://github.com/user-attachments/assets/b42ea0dc-7a16-41cc-8580-fdb3a4bb530e
 
 ## Developer API
 
